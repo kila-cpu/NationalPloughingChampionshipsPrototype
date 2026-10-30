@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NPC Visitor App</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Archivo+Narrow:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1d13; --card:#163021; --card2:#1c3b29; --line:#26472f; --text:#eef5f0; --muted:#a3bdad; --dim:#6f8d7c;
+  --green:#4cc276; --green-d:#2f9a57; --orange:#f08a2c; --gold:#e8b53a; --blue:#43a8d8; --red:#e5534b; --purple:#a77de0;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1200px 700px at 70% 20%,#123222 0%,#07130c 60%) #07130c;color:var(--text);font-family:Poppins,system-ui,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+a{color:inherit}
+svg.i{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+
+/* stage: side panel + phone */
+.stage{height:100vh;display:flex;align-items:center;justify-content:center;gap:60px;padding:20px;overflow:hidden}
+.panel{width:290px;flex:none;align-self:center;max-height:calc(100vh - 40px);overflow-y:auto;scrollbar-width:none;padding-right:4px}
+.panel::-webkit-scrollbar{display:none}
+.panel .back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);text-decoration:none;font-size:13px;margin-bottom:18px}
+.panel .back:hover{color:var(--gold)}
+.panel h2{font-family:"Archivo Narrow",sans-serif;font-size:26px;margin:0;letter-spacing:.01em}
+.panel h2 span{color:var(--gold)}
+.panel p{color:var(--muted);font-size:13px;line-height:1.55;margin:8px 0 18px}
+.panel .grp{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin:16px 0 6px}
+.panel .scr{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;color:#d5e3da;padding:5px 10px;border-radius:8px;cursor:pointer;font-size:13.5px}
+.panel .scr:hover{background:#12291c}
+.panel .scr.on{background:#183424;color:#fff}
+.panel .scr i{font-style:normal;width:20px;text-align:center;color:var(--dim);font-size:11px}
+.panel .note{margin-top:20px;border:1px solid #24432f;background:#0e2117;border-radius:10px;padding:12px;font-size:12px;color:var(--muted);line-height:1.5}
+.panel .links{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.panel .links a{font-size:12px;color:var(--gold);text-decoration:none;border:1px solid #3d3a1c;border-radius:7px;padding:5px 9px}
+
+.phone{width:402px;height:860px;flex:none;border-radius:60px;background:#040806;padding:11px;box-shadow:0 0 0 2px #1f3829,0 0 0 9px #0a140e,0 50px 90px rgba(0,0,0,.65);transform-origin:center}
+.screen{position:relative;height:100%;border-radius:49px;overflow:hidden;overflow:clip;background:var(--bg);display:flex;flex-direction:column}
+.island{position:absolute;top:11px;left:50%;transform:translateX(-50%);width:122px;height:35px;background:#000;border-radius:20px;z-index:80}
+.sbar{height:52px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:8px 30px 0 40px;font-weight:600;font-size:15.5px;position:relative;z-index:5}
+.sbar .r{display:flex;gap:6px;align-items:center}
+.homebar{position:absolute;bottom:8px;left:50%;width:136px;height:5px;border-radius:3px;background:#fff;opacity:.85;transform:translateX(-50%);z-index:95;pointer-events:none}
+#view{flex:1;overflow-y:auto;overflow-x:hidden;scrollbar-width:none;padding-bottom:34px}
+#view::-webkit-scrollbar{display:none}
+#view.fixed{display:flex;flex-direction:column;overflow:hidden;padding-bottom:0}
+
+/* headers */
+.hd{display:flex;align-items:center;gap:6px;padding:8px 16px 4px}
+.icb{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:none;border:0;color:#fff;position:relative;cursor:pointer;flex:none}
+.icb svg.i{width:25px;height:25px}
+.icb.av{background:#1b3828}
+.icb.sm{width:40px;height:40px}
+.dotn{position:absolute;top:5px;right:6px;min-width:17px;height:17px;border-radius:9px;background:var(--orange);font-size:10px;font-weight:700;display:grid;place-items:center;padding:0 4px;color:#1d0e00}
+.brand{display:flex;align-items:center;gap:9px;text-decoration:none;margin-right:auto;min-width:0}
+.brand svg{flex:none}
+.logo{display:block;width:auto;background:#fff;border-radius:10px;padding:4px 7px;box-sizing:content-box}
+.panel .plogo{display:block;width:100%;max-width:220px;background:#fff;border-radius:14px;padding:10px 14px;box-sizing:border-box;margin:4px 0 14px}
+.brand .bt{font-family:"Archivo Narrow",sans-serif;font-weight:700;line-height:1.02;letter-spacing:.02em}
+.brand .bt .a{color:#f4f8f5}.brand .bt .b{color:var(--gold)}.brand .bt .c{font-family:Poppins;font-weight:400;color:var(--muted);letter-spacing:0}
+.ttl{padding:10px 20px 16px}
+.ttl h1{font-size:27px;margin:0 0 4px;font-weight:700;letter-spacing:-.01em;line-height:1.15}
+.ttl p{margin:0;color:var(--muted);font-size:15px}
+
+/* home */
+.pow{padding:0 20px;color:#d7e4dc;font-size:14px}
+.welcome{padding:22px 20px 6px}
+.welcome h1{font-size:28px;font-weight:700;margin:0 0 6px;letter-spacing:-.01em;line-height:1.15}
+.welcome p{margin:0;font-size:15.5px;color:#dbe7df}
+.cd{display:flex;align-items:center;gap:10px;margin:18px 18px 22px;padding:11px 14px;border-radius:14px;background:#10281b;border:1px solid #27482f;font-size:13px;color:var(--muted)}
+.cd b{color:var(--gold);font-weight:600}
+.tile{display:flex;align-items:center;gap:18px;margin:0 18px 14px;padding:20px 16px 20px 20px;background:var(--card);border:1px solid var(--line);border-radius:22px;cursor:pointer}
+.tile:active{transform:scale(.99)}
+.tile .ic{width:62px;height:62px;border-radius:16px;display:grid;place-items:center;flex:none;color:#fff}
+.tile .ic svg.i{width:32px;height:32px}
+.tile .tx{flex:1;min-width:0}
+.tile b{font-size:19px;font-weight:600;display:block;line-height:1.25}
+.tile small{font-size:14.5px;color:#cfdcd4;display:block;margin-top:3px;line-height:1.35}
+.tile.hl{background:linear-gradient(110deg,#43b05a,#2a8a55);border-color:#4cc276}
+.tile.hl small{color:#eaf7ee}
+.tile.gold{border-color:#5a4a1d;background:linear-gradient(110deg,#1d3524,#2a2a16)}
+
+/* generic */
+.sec{font-size:13px;letter-spacing:.09em;text-transform:uppercase;color:#cfdcd4;font-weight:600;padding:16px 20px 10px}
+.sec.sm{text-transform:none;letter-spacing:0;font-size:15px}
+.srch{margin:0 18px 12px;display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:0 14px;height:48px;color:var(--muted)}
+.srch input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--text);font-size:15px}
+.srch input::placeholder{color:var(--dim)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:0 18px 12px;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;padding:8px 14px;border-radius:999px;background:var(--card);border:1px solid var(--line);font-size:13px;cursor:pointer;color:var(--text);display:flex;align-items:center;gap:6px}
+.chip.on{background:var(--green);color:#06210f;border-color:var(--green);font-weight:600}
+.li{display:flex;align-items:center;gap:13px;padding:12px 18px;border-bottom:1px solid #16301f;cursor:pointer}
+.li .tx{flex:1;min-width:0}
+.li b{display:block;font-weight:500;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.li small{display:block;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lg{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;font-weight:700;color:#fff;font-size:15px;flex:none;letter-spacing:.02em}
+.lg.xl{width:84px;height:84px;border-radius:20px;font-size:28px}
+.star{background:none;border:0;color:var(--dim);cursor:pointer;padding:6px;display:grid;place-items:center}
+.star.on{color:var(--gold)}
+.star.on svg{fill:var(--gold)}
+.pill{font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:999px;border:1.5px solid;white-space:nowrap;display:inline-flex;align-items:center;gap:5px}
+.p-blue{color:#7fd0f4;border-color:#2a6787;background:#123049}
+.p-green{color:#6fe39a;border-color:#2b7a48;background:#123d24}
+.p-orange{color:#ffb070;border-color:#8a4f1c;background:#3a220e}
+.p-red{color:#ff8f88;border-color:#8a2e29;background:#3b1513}
+.p-gold{color:#f3cd6a;border-color:#7a6220;background:#352c0f}
+.p-grey{color:#c1d0c7;border-color:#3a5546;background:#1a3024}
+.pc{display:flex;gap:14px;margin:0 18px 12px;padding:18px 16px 16px;background:var(--card);border:1px solid var(--line);border-radius:22px;cursor:pointer;align-items:center}
+.pc .em{width:50px;height:50px;border-radius:14px;background:#10261a;border:1px solid var(--line);display:grid;place-items:center;font-size:23px;flex:none}
+.pc .bd{flex:1;min-width:0}
+.pc b{font-size:17px;font-weight:600;display:block;margin-bottom:3px;line-height:1.25}
+.pc small{color:var(--muted);font-size:13.5px;line-height:1.42;display:block}
+.pc .rt{display:flex;flex-direction:column;align-items:flex-end;gap:14px;flex:none;align-self:stretch;justify-content:space-between}
+.pc .rt svg.i{color:#cfdcd4}
+.card{margin:0 18px 14px;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:20px}
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;height:52px;border-radius:15px;border:0;font-weight:600;font-size:16px;width:100%;cursor:pointer;text-decoration:none}
+.btn-g{background:var(--green);color:#06210f}
+.btn-o{background:var(--orange);color:#1d0e00}
+.btn-l{background:var(--card2);color:var(--text);border:1px solid var(--line)}
+.btn-k{background:#000;color:#fff;border:1px solid #333}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btns{display:flex;gap:10px}
+.muted{color:var(--muted)}
+.empty{text-align:center;color:var(--muted);padding:40px 30px;font-size:14px;line-height:1.5}
+.empty .big{font-size:40px;margin-bottom:8px}
+.fld{margin-bottom:14px}
+.fld label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+.inp{width:100%;height:50px;border-radius:13px;border:1px solid var(--line);background:#10261a;padding:0 14px;color:var(--text);font-size:15px;outline:0}
+.inp:focus{border-color:var(--green)}
+textarea.inp{height:110px;padding:12px 14px;resize:none}
+
+/* exhibitor profile */
+.prof{text-align:center;padding:4px 20px 16px}
+.prof .lg{margin:0 auto 14px}
+.prof h1{font-size:23px;margin:0 0 6px;line-height:1.2}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:0 18px 16px}
+.acts button{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;color:var(--text);cursor:pointer}
+.acts button svg.i{color:var(--green)}
+.acts button.on svg.i{color:var(--gold);fill:var(--gold)}
+.standbox{display:flex;align-items:center;gap:14px}
+.standbox .num{width:62px;height:62px;border-radius:14px;background:var(--gold);color:#2a1d00;display:grid;place-items:center;font-weight:700;font-size:20px;flex:none;font-family:"Archivo Narrow"}
+.kv{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #1d3a28;font-size:14px}
+.kv:last-child{border:0}
+.kv span{color:var(--muted)}
+.feat{display:flex;gap:12px;overflow-x:auto;padding:0 18px 14px;scrollbar-width:none}
+.feat::-webkit-scrollbar{display:none}
+.feat .fc{flex:none;width:236px;border-radius:20px;padding:16px;background:linear-gradient(140deg,#1f3f2c,#142a1d);border:1px solid #33583f;cursor:pointer}
+.feat .fc .tag{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.feat .fc b{display:block;margin:10px 0 2px;font-size:15px;font-weight:600}
+.feat .fc small{color:var(--muted);font-size:12.5px}
+
+/* map */
+.mapwrap{position:relative;flex:1;overflow:hidden;background:#f2f2ee;touch-action:none;cursor:grab}
+.mapwrap.drag{cursor:grabbing}
+#mapIn{position:absolute;left:0;top:0;width:1400px;height:1979px;transform-origin:0 0;--inv:1}
+#mapIn img{width:100%;height:100%;display:block;user-select:none;-webkit-user-drag:none;pointer-events:none}
+.pin{position:absolute;width:30px;height:30px;margin:-15px 0 0 -15px;border-radius:50%;display:grid;place-items:center;font-size:15px;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);transform:scale(var(--inv));cursor:pointer;color:#fff;font-weight:700}
+.pin.gate{width:24px;height:24px;margin:-12px 0 0 -12px;font-size:8.5px;background:#d6312b;border-width:1.5px}
+.pin.sel{box-shadow:0 0 0 4px rgba(232,181,58,.8),0 2px 8px rgba(0,0,0,.4)}
+.you{position:absolute;width:20px;height:20px;margin:-10px 0 0 -10px;border-radius:50%;background:#2f80ed;border:3px solid #fff;box-shadow:0 0 0 8px rgba(47,128,237,.25);transform:scale(var(--inv))}
+.hit{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;transform:scale(var(--inv));pointer-events:none}
+.hit::before{content:"";position:absolute;inset:0;border-radius:50%;border:4px solid #e8b53a;animation:pulse 1.4s ease-out infinite}
+.hit::after{content:"";position:absolute;left:14px;top:14px;width:16px;height:16px;border-radius:50%;background:#e8b53a;border:3px solid #fff}
+@keyframes pulse{from{transform:scale(.6);opacity:1}to{transform:scale(1.6);opacity:0}}
+.mtop{position:absolute;left:12px;right:12px;top:10px;z-index:5}
+.mtop .srch{margin:0;background:#fff;color:#4a5c50;border-color:#d8ded8;box-shadow:0 6px 18px rgba(0,0,0,.18)}
+.mtop .srch input{color:#13261b}
+.mtop .srch input::placeholder{color:#7b8b80}
+.mres{background:#fff;border-radius:14px;margin-top:6px;box-shadow:0 8px 24px rgba(0,0,0,.2);overflow:hidden;color:#13261b}
+.mres button{display:flex;gap:10px;align-items:center;width:100%;background:none;border:0;border-bottom:1px solid #eef0ec;padding:10px 12px;text-align:left;cursor:pointer;color:#13261b}
+.mres small{display:block;color:#6a7a70;font-size:12px}
+.mctl{position:absolute;right:12px;top:72px;display:flex;flex-direction:column;gap:8px;z-index:4}
+.mctl button{width:42px;height:42px;border-radius:12px;background:#fff;border:0;box-shadow:0 4px 12px rgba(0,0,0,.2);color:#13261b;display:grid;place-items:center;cursor:pointer}
+.mlayers{position:absolute;left:0;right:0;bottom:16px;z-index:4}
+.mlayers .chips{padding:0 12px}
+.mlayers .chip{background:#fff;color:#13261b;border-color:#d8ded8;box-shadow:0 3px 10px rgba(0,0,0,.15)}
+.mlayers .chip.on{background:#13261b;color:#fff;border-color:#13261b}
+.mpop{position:absolute;left:12px;right:12px;bottom:64px;z-index:6;background:#fff;color:#13261b;border-radius:20px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.mpop .x{position:absolute;right:8px;top:8px;background:#eef1ed;border:0;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;cursor:pointer;color:#13261b}
+.mpop .top{display:flex;gap:12px;align-items:center;padding-right:30px}
+.mpop b{display:block;font-size:16px}
+.mpop small{display:block;color:#5d6f63;font-size:12.5px}
+.mpop .btns{margin-top:12px}
+.mpop .btn{height:44px;font-size:14.5px}
+.mpop .btn-l{background:#eef1ed;color:#13261b;border:0}
+.mnote{position:absolute;left:12px;top:68px;z-index:4;background:rgba(255,255,255,.92);color:#2b3d31;font-size:11px;border-radius:8px;padding:4px 8px}
+.alertbar{display:flex;gap:10px;align-items:flex-start;margin:0 18px 12px;padding:12px 14px;border-radius:14px;background:#3a220e;border:1px solid #8a4f1c;color:#ffd2a8;font-size:13px;line-height:1.4}
+
+/* agenda */
+.days{display:flex;gap:8px;padding:0 18px 12px}
+.days button{flex:1;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:9px 4px;cursor:pointer;color:var(--text);line-height:1.2}
+.days button b{display:block;font-size:18px}
+.days button small{font-size:11.5px;color:var(--muted)}
+.days button.on{background:var(--green);border-color:var(--green);color:#06210f}
+.days button.on small{color:#11402a}
+.ev{display:flex;gap:14px;margin:0 18px 10px;padding:14px;background:var(--card);border:1px solid var(--line);border-radius:18px;cursor:pointer;align-items:flex-start}
+.ev .tm{width:50px;flex:none;font-weight:600;font-size:15px;line-height:1.2}
+.ev .tm small{display:block;color:var(--muted);font-weight:400;font-size:12px}
+.ev .bar{width:4px;align-self:stretch;border-radius:3px;flex:none}
+.ev .tx{flex:1;min-width:0}
+.ev b{display:block;font-weight:600;font-size:15px;line-height:1.3}
+.ev small{display:block;color:var(--muted);font-size:12.5px;margin-top:3px}
+.cat{display:inline-block;font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;margin-top:6px}
+
+/* news */
+.nw{margin:0 18px 12px;padding:16px;background:var(--card);border:1px solid var(--line);border-radius:20px}
+.nw .top{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.nw .em{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:20px;flex:none}
+.nw .top small{color:var(--muted);font-size:12px;display:block}
+.nw h3{margin:0 0 6px;font-size:16.5px;font-weight:600;line-height:1.3}
+.nw p{margin:0;color:#cfdcd4;font-size:14px;line-height:1.5}
+.nw .cta{margin-top:12px;display:inline-flex;align-items:center;gap:6px;color:var(--green);font-weight:600;font-size:14px;background:none;border:0;padding:0;cursor:pointer}
+.nt{display:flex;gap:12px;padding:14px 18px;border-bottom:1px solid #16301f}
+.nt .em{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;font-size:18px;flex:none}
+.nt b{display:block;font-weight:600;font-size:14.5px}
+.nt p{margin:2px 0 4px;color:#cfdcd4;font-size:13.5px;line-height:1.45}
+.nt small{color:var(--dim);font-size:12px}
+.nt.unread{background:#10291c}
+.nt.unread b::after{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--orange);margin-left:8px;vertical-align:middle}
+
+/* tickets */
+.tk{display:flex;align-items:center;gap:12px;margin:0 18px 10px;padding:14px 14px 14px 16px;background:var(--card);border:1px solid var(--line);border-radius:18px}
+.tk .tx{flex:1;min-width:0}
+.tk b{display:block;font-weight:600;font-size:15px}
+.tk small{display:block;color:var(--muted);font-size:12.5px}
+.tk .pr{font-weight:700;font-size:15px;margin-top:4px}
+.tk .pr s{color:var(--dim);font-weight:400;font-size:12.5px;margin-left:6px}
+.qty{display:flex;align-items:center;gap:10px;flex:none}
+.qty button{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#10261a;color:var(--text);font-size:18px;cursor:pointer;display:grid;place-items:center}
+.qty button:disabled{opacity:.35}
+.qty span{min-width:16px;text-align:center;font-weight:600;font-size:16px}
+.cart{position:sticky;bottom:0;margin-top:8px;padding:14px 18px 6px;background:linear-gradient(transparent,var(--bg) 18%)}
+.cart .sum{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px;padding-top:12px}
+.cart .sum b{font-size:22px}
+.tix{margin:0 18px 16px;border-radius:22px;overflow:hidden;background:#fff;color:#13261b;cursor:pointer}
+.tix .hd2{background:linear-gradient(110deg,#43b05a,#2a8a55);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.tix .hd2 b{font-size:16px}
+.tix .bd{display:flex;gap:14px;align-items:center;padding:14px 16px}
+.tix .bd small{display:block;color:#5d6f63;font-size:12.5px}
+.tix .bd b{display:block;font-size:15px;margin-bottom:6px}
+.qrbig{display:grid;place-items:center;padding:6px 0 14px}
+
+/* toggles */
+.tg{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #1d3a28}
+.tg:last-child{border:0}
+.tg .tx{flex:1}
+.tg small{display:block;color:var(--muted);font-size:12.5px}
+.sw{width:50px;height:30px;border-radius:15px;background:#2c4a38;border:0;position:relative;cursor:pointer;flex:none;transition:.2s}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.2s}
+.sw.on{background:var(--green)}
+.sw.on::after{left:23px}
+.menu .li{border:0;padding:14px 4px}
+.menu .li .ic{width:38px;height:38px;border-radius:11px;background:#10261a;border:1px solid var(--line);display:grid;place-items:center;flex:none;color:var(--green)}
+
+/* docs / passes */
+.doc{margin:0 18px 10px;padding:14px 16px;background:var(--card);border:1px solid var(--line);border-radius:18px}
+.doc .top{display:flex;align-items:flex-start;gap:12px}
+.doc .top .tx{flex:1;min-width:0}
+.doc b{display:block;font-weight:600;font-size:15px}
+.doc small{display:block;color:var(--muted);font-size:12.5px;line-height:1.4;margin-top:2px}
+.doc .file{display:flex;align-items:center;gap:8px;margin-top:10px;padding:9px 11px;border-radius:11px;background:#10261a;font-size:12.5px;color:#cfdcd4;overflow:hidden}
+.doc .file span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc .warn{margin-top:10px;padding:9px 11px;border-radius:11px;background:#3b1513;color:#ffb3ad;font-size:12.5px;line-height:1.4}
+.doc .btn{height:42px;font-size:14px;margin-top:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:0 18px 14px}
+.stats div{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px;text-align:center}
+.stats b{display:block;font-size:22px}
+.stats small{color:var(--muted);font-size:12px}
+.prog{height:8px;border-radius:5px;background:#10261a;overflow:hidden;margin-top:10px}
+.prog i{display:block;height:100%;background:var(--green);border-radius:5px}
+.opt{display:flex;align-items:center;gap:12px;padding:13px 14px;border:1.5px solid var(--line);border-radius:14px;margin-bottom:8px;cursor:pointer}
+.opt.on{border-color:var(--green);background:#123d24}
+.opt .rd{width:20px;height:20px;border-radius:50%;border:2px solid var(--dim);flex:none}
+.opt.on .rd{border:6px solid var(--green)}
+.opt span{flex:1}
+.stars{display:flex;gap:6px}
+.stars button{background:none;border:0;padding:2px;cursor:pointer;color:#3b5a47}
+.stars button.on{color:var(--gold)}
+.stars button.on svg{fill:var(--gold)}
+
+/* sheet + toast */
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:70;display:flex;align-items:flex-end;opacity:0;transition:opacity .2s;pointer-events:none}
+.scrim.on{opacity:1;pointer-events:auto}
+.sheet{background:#13281c;width:100%;border-radius:28px 28px 0 0;padding:10px 20px 36px;max-height:90%;overflow-y:auto;transform:translateY(40px);transition:transform .25s;scrollbar-width:none}
+.scrim.on .sheet{transform:none}
+.grab{width:40px;height:5px;border-radius:3px;background:#3b5a47;margin:0 auto 16px}
+.sheet h2{font-size:21px;margin:0 0 4px}
+.sheet .sub{color:var(--muted);font-size:14px;margin:0 0 18px;line-height:1.45}
+.toast{position:absolute;left:16px;right:16px;top:58px;background:#eef5f0;color:#0b1d13;border-radius:16px;padding:13px 16px;font-size:14px;font-weight:500;z-index:90;transform:translateY(-16px);opacity:0;transition:.25s;display:flex;gap:10px;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.35);pointer-events:none}
+.toast.on{transform:none;opacity:1}
+.spin{width:44px;height:44px;border-radius:50%;border:4px solid #2c4a38;border-top-color:var(--green);animation:sp 0.8s linear infinite;margin:20px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+@media (max-width:760px){
+  .stage{padding:0;display:block;height:auto!important;overflow:visible}
+  .panel{display:none}
+  .phone{width:100%;height:100vh;height:100dvh;border-radius:0;padding:0;box-shadow:none;transform:none!important}
+  .screen{border-radius:0}
+  .island,.homebar{display:none}
+  .sbar{height:env(safe-area-inset-top,0px);padding:0;overflow:hidden}
+  .sbar *{display:none}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <symbol id="i-building" viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M12 6h.01M12 10h.01M12 14h.01M16 10h.01M16 14h.01M8 10h.01M8 14h.01"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></symbol>
+    <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="7" y1="14" x2="14" y2="14"/><line x1="7" y1="18" x2="12" y2="18"/></symbol>
+    <symbol id="i-news" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="13" y2="16"/></symbol>
+    <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><line x1="13" y1="6" x2="13" y2="8"/><line x1="13" y1="11" x2="13" y2="13"/><line x1="13" y1="16" x2="13" y2="18"/></symbol>
+    <symbol id="i-brief" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></symbol>
+    <symbol id="i-bell" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+    <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21v-1a7 7 0 0 1 16 0v1"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><line x1="20" y1="12" x2="4" y2="12"/><polyline points="10 18 4 12 10 6"/></symbol>
+    <symbol id="i-chev" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+    <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+    <symbol id="i-mail" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><polyline points="22 6 12 13 2 6"/></symbol>
+    <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+    <symbol id="i-loc" viewBox="0 0 24 24"><polygon points="3 11 22 2 13 21 11 13 3 11"/></symbol>
+    <symbol id="i-nav" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8"/></symbol>
+    <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></symbol>
+    <symbol id="i-heart" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+    <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></symbol>
+    <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+  </defs>
+</svg>
+
+<div class="stage">
+  <aside class="panel">
+    <a class="back" href="index.html"><svg class="i" style="width:16px;height:16px"><use href="#i-back"/></svg>All dashboards</a>
+    <img class="plogo" src="npc-logo.png" alt="National Ploughing Championships">
+    <h2>VISITOR APP <span>2027</span></h2>
+    <p>Click-through wireframes of the National Ploughing Championships app — based on the ICE Expo app, rebranded for the NPA. Jump to any screen below, or tap around inside the phone.</p>
+    <div id="screens"></div>
+    <div class="note">The exhibitor portal inside the app shares live data with the <a href="exhibitor.html" style="color:var(--gold)">web portal</a> and the <a href="admin.html" style="color:var(--gold)">admin dashboard</a> — upload a document or order power here and it appears there.</div>
+  </aside>
+  <div class="phone" id="phone">
+    <div class="screen" id="screen">
+      <div class="island"></div>
+      <div class="sbar"><span id="clock">9:41</span><span class="r">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="#fff"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1" opacity=".45"/><rect x="15" y="0" width="3" height="12" rx="1" opacity=".45"/></svg>
+        <svg width="16" height="12" viewBox="0 0 16 12" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M1 4a10 10 0 0 1 14 0M3.5 6.8a6.5 6.5 0 0 1 9 0M6 9.4a3 3 0 0 1 4 0"/></svg>
+        <svg width="27" height="13" viewBox="0 0 27 13"><rect x=".5" y=".5" width="23" height="12" rx="3.5" fill="none" stroke="#fff" opacity=".5"/><rect x="2" y="2" width="17" height="9" rx="2" fill="#fff"/><rect x="24.5" y="4.5" width="2" height="4" rx="1" fill="#fff" opacity=".5"/></svg></span></div>
+      <div id="view"></div>
+      <div class="scrim" id="scrim"><div class="sheet" id="sheet"></div></div>
+      <div class="toast" id="toast"></div>
+      <div class="homebar"></div>
+    </div>
+  </div>
+</div>
+<input type="file" id="fileIn" accept=".pdf,.jpg,.jpeg,.png,.heic,.doc,.docx" style="display:none">
+
+<script src="npc-link.js"></script>
+<script>
+/* ============================================================
+   Seeded demo data — the same generator as the admin dashboard,
+   so exhibitor names and stands match across all three views
+   ============================================================ */
+let seed = 20270921;
+const R = () => (seed = (seed * 1664525 + 1013904223) % 4294967296) / 4294967296;
+const pick = a => a[Math.floor(R() * a.length)];
+const ri = (a, b) => a + Math.floor(R() * (b - a + 1));
+const icon = (n, s) => `<svg class="i"${s ? ` style="width:${s}px;height:${s}px"` : ''}><use href="#i-${n}"/></svg>`;
+const eur = n => '€' + Math.round(n).toLocaleString('en-IE');
+const num = n => n.toLocaleString('en-IE');
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const EVENT_START = new Date('2027-09-21T09:00:00');
+
+/* zones follow the categories legend on the NPC site map */
+const ZONES = [
+  {id:'agri', name:'Agri Advisory, Livestock & Dairy', color:'#3cb54a', ind:['Livestock Equipment','Feed & Nutrition','Dairy & Milking','Veterinary & Animal Health','Farm Buildings']},
+  {id:'mach', name:'Machinery, ATVs & Plant', color:'#8db3e2', ind:['Tractors & Machinery','Plant & Contracting','Vehicles & Trailers','Forestry','Agri-Tech & Software','Fencing & Gates']},
+  {id:'fin', name:'Financial, Government & Education', color:'#f6c142', ind:['Finance & Insurance','Education & Research','Community & Charity','Farm Safety']},
+  {id:'motor', name:'Motor & Trucks', color:'#8c7b5c', ind:['Motor & Trucks']},
+  {id:'home', name:'House & Home, Food & Lifestyle', color:'#e040e0', ind:['Home & Garden','Food & Drink','Fashion & Retail','Renewable Energy']},
+];
+const ZMAP = Object.fromEntries(ZONES.map(z => [z.id, z]));
+const INDUSTRIES = [...new Set(ZONES.flatMap(z => z.ind))].sort();
+
+/* stand positions traced from the 2026 Screggan site map (viewBox 1400 × 1979)
+   [from, to, x1, y1, x2, y2, zone] — stands spread evenly from (x1,y1) to (x2,y2) */
+const MAP_W = 1400, MAP_H = 1979, MAP_IMG = 'site-map-2026.jpg';
+const SEGS = [
+  [1,3,447,570,447,592,'fin'],[4,6,367,635,444,635,'agri'],[7,8,443,697,443,719,'agri'],[9,12,500,730,575,730,'agri'],[13,18,605,730,700,730,'agri'],[20,23,730,730,778,730,'mach'],[24,25,800,730,842,730,'agri'],
+  [26,26,882,730,882,730,'fin'],[27,27,443,742,443,742,'agri'],[28,36,482,757,575,757,'agri'],[37,52,605,757,778,757,'agri'],[53,58,800,757,875,757,'agri'],[59,59,888,744,888,744,'fin'],[60,60,437,775,437,775,'agri'],
+  [61,68,482,781,575,781,'agri'],[69,81,605,781,778,781,'agri'],[82,88,800,781,875,781,'mach'],[89,89,896,756,896,756,'fin'],[90,90,410,807,410,807,'agri'],[91,97,482,807,575,807,'agri'],[98,107,605,807,778,807,'agri'],
+  [108,111,805,807,885,807,'fin'],[112,112,912,781,912,781,'fin'],[113,113,413,870,413,870,'agri'],[114,119,482,843,575,843,'agri'],[120,126,605,843,778,843,'agri'],[127,128,805,843,905,843,'fin'],[129,129,933,820,933,820,'fin'],
+  [130,133,482,875,575,875,'agri'],[134,137,605,875,778,875,'fin'],[138,139,805,875,925,875,'fin'],[140,141,945,838,952,855,'fin'],[142,142,413,930,413,930,'agri'],[143,147,482,911,575,911,'agri'],[148,150,610,911,740,911,'fin'],
+  [151,151,765,910,765,910,'fin'],[152,155,848,911,975,911,'fin'],[156,156,968,882,968,882,'fin'],[157,157,988,912,988,912,'fin'],[158,162,482,943,575,943,'fin'],[163,166,610,943,778,943,'fin'],[167,171,848,943,965,943,'fin'],
+  [172,173,1000,930,1010,950,'fin'],[174,174,432,996,432,996,'agri'],[175,179,482,981,575,981,'mach'],[180,182,610,981,778,981,'fin'],[183,191,805,981,985,981,'fin'],[192,198,482,1019,575,1019,'agri'],[199,202,612,1019,778,1019,'mach'],
+  [203,213,805,1019,995,1019,'fin'],[214,214,447,1060,447,1060,'mach'],[215,218,482,1055,575,1055,'mach'],[219,226,600,1055,778,1055,'mach'],[227,235,805,1055,995,1055,'mach'],[236,237,447,1088,447,1100,'mach'],
+  [238,241,482,1087,575,1087,'mach'],[242,250,600,1087,778,1087,'mach'],[251,257,805,1087,995,1087,'mach'],[258,260,447,1113,447,1135,'mach'],[261,265,482,1122,575,1122,'mach'],[266,274,600,1122,778,1122,'mach'],[275,283,805,1122,995,1122,'mach'],
+  [284,284,447,1162,447,1162,'fin'],[285,290,482,1151,575,1151,'mach'],[291,300,600,1151,778,1151,'mach'],[301,312,805,1151,995,1151,'mach'],[313,313,450,1196,450,1196,'agri'],[314,317,482,1180,575,1180,'mach'],[318,324,600,1180,778,1180,'mach'],
+  [325,333,805,1180,995,1180,'mach'],[334,334,456,1210,456,1210,'home'],[335,339,482,1213,575,1213,'mach'],[340,348,600,1213,778,1213,'mach'],[349,359,805,1213,995,1213,'mach'],[360,361,500,1250,543,1250,'mach'],[362,370,600,1250,778,1250,'mach'],
+  [371,381,805,1250,995,1250,'mach'],[382,382,556,1300,556,1300,'home'],[383,395,600,1275,778,1275,'home'],[396,406,805,1275,995,1275,'mach'],[407,413,605,1305,778,1305,'motor'],[414,416,805,1305,860,1305,'motor'],[417,425,890,1305,995,1305,'motor'],
+  [426,426,543,1365,543,1365,'fin'],[427,437,620,1337,778,1337,'home'],[438,447,805,1337,995,1337,'home'],[448,456,618,1372,778,1372,'home'],[457,470,805,1372,995,1372,'home'],[471,471,568,1408,568,1408,'home'],[472,483,618,1398,778,1398,'home'],
+  [484,500,805,1398,995,1398,'home'],[501,501,568,1430,568,1430,'home'],[502,506,625,1429,712,1429,'home'],[507,516,805,1429,995,1429,'home'],[517,517,568,1452,568,1452,'home'],[518,522,645,1460,778,1460,'home'],[523,531,805,1460,970,1460,'home'],
+  [532,532,648,1515,648,1515,'home'],[533,543,705,1500,705,1700,'home'],[544,552,742,1500,742,1590,'home'],[553,559,742,1625,742,1700,'home'],[560,561,768,1520,768,1570,'home'],[562,565,768,1625,768,1700,'home'],[566,574,800,1500,800,1590,'fin'],
+  [575,580,800,1625,800,1700,'home'],[581,588,820,1500,820,1590,'home'],[589,594,820,1625,820,1700,'home'],[595,595,895,1512,895,1512,'home'],[596,596,895,1570,895,1570,'home'],[597,604,845,1625,845,1700,'home'],
+  [605,610,868,1625,868,1700,'home'],[611,615,895,1625,895,1700,'home'],[616,621,930,1625,930,1700,'home'],[622,625,970,1570,970,1700,'home'],
+];
+const ROW_Y = [580,730,757,781,807,843,875,911,943,981,1019,1055,1087,1122,1151,1180,1213,1250,1275,1305,1337,1372,1398,1429,1460];
+const LOWER_COLS = [705,742,768,800,820,845,868,895,930,970];
+const blockOf = x => x < 465 ? 1 : x < 590 ? 2 : x < 790 ? 3 : x < 1010 ? 4 : 5;
+const rowOf = (x, y) => y > 1490 ? 26 + LOWER_COLS.reduce((b, cx, i) => Math.abs(cx - x) < Math.abs(LOWER_COLS[b] - x) ? i : b, 0)
+  : 1 + ROW_Y.reduce((b, ry, i) => Math.abs(ry - y) < Math.abs(ROW_Y[b] - y) ? i : b, 0);
+const CELLS = [];
+SEGS.forEach(([a, b, x1, y1, x2, y2, zone]) => {
+  const n = b - a + 1;
+  for (let i = 0; i < n; i++) {
+    const t = n === 1 ? 0 : i / (n - 1), x = x1 + (x2 - x1) * t, y = y1 + (y2 - y1) * t;
+    CELLS.push({id: CELLS.length, zone, num: a + i, x, y, block: blockOf(x), row: rowOf(x, y), ex: null});
+  }
+});
+ZONES.forEach(z => { z.total = CELLS.filter(c => c.zone === z.id).length; z.blocks = [...new Set(CELLS.filter(c => c.zone === z.id).map(c => c.block))].sort(); });
+
+const P1 = ['Kilbride','Shannon','Barrow','Slaney','Boyne','Mourne','Galtee','Comeragh','Nore','Suir','Liffey','Moy','Erne','Corrib','Midland','Golden Vale','Curragh','Athy','Carlow','Ballinasloe','Mullingar','Cashel','Tullow','Bandon','Kanturk','Abbeyleix','Edenderry','Monasterevin','Clane','Birr','Roscrea','Thurles','Kells','Ardee','Granard','Ballyhaunis','Listowel','Dungarvan','Enniscorthy','Gorey'];
+const P2 = {
+  'Tractors & Machinery':['Tractors','Agri Machinery','Farm Machinery','Tillage Equipment','Harvest Solutions'],
+  'Vehicles & Trailers':['Trailers','Commercial Vehicles','Motors','Quads & ATVs'],
+  'Plant & Contracting':['Plant Hire','Contracting','Groundworks'],
+  'Agri-Tech & Software':['Agri Tech','Farm Software','Precision Farming','Drones'],
+  'Renewable Energy':['Solar','Energy Solutions','Biogas'],
+  'Dairy & Milking':['Dairy Systems','Milking Solutions','Robotic Milking'],
+  'Livestock Equipment':['Livestock Systems','Cattle Handling','Sheep Equipment'],
+  'Feed & Nutrition':['Feeds','Animal Nutrition','Grain & Feed'],
+  'Veterinary & Animal Health':['Vets','Animal Health'],
+  'Food & Drink':['Artisan Foods','Farmhouse Cheese','Craft Brewery','Bakery','Smokehouse'],
+  'Home & Garden':['Garden Centre','Home Interiors','Stoves','Kitchens'],
+  'Finance & Insurance':['Credit Union','Farm Insurance','Accountants'],
+  'Education & Research':['Agricultural College','Research Centre'],
+  'Fashion & Retail':['Country Wear','Boutique','Tweed Co.','Footwear'],
+  'Farm Buildings':['Sheds & Steel','Farm Buildings','Precast Concrete'],
+  'Fencing & Gates':['Fencing','Gates & Railings'],
+  'Farm Safety':['Farm Safety','Safety Training'],
+  'Forestry':['Forestry Services','Timber','Woodland Management'],
+  'Community & Charity':['Macra Club','Community Alert','Rural Network'],
+  'Motor & Trucks':['Motors','Truck Centre','Van Sales'],
+};
+const SUF = ['Ltd','','& Sons','Ireland','Group','Ltd','',''];
+const FN = ['Seán','Aoife','Ciarán','Niamh','Pádraig','Siobhán','Declan','Gráinne','Eoin','Orla','Tadhg','Máire','Colm','Sinéad','Fergal','Clodagh','Darragh','Úna','Brendan','Róisín','Michael','Catherine','John','Mary','Liam','Emma','Conor','Sarah','Kevin','Rachel'];
+const LN = ['Murphy','Kelly','O\'Sullivan','Walsh','Byrne','Ryan','O\'Brien','Doyle','McCarthy','Kavanagh','Brennan','Dunne','Fitzgerald','Moran','Nolan','Lynch','Whelan','Maher','Dempsey','Keane','Hayes','Quinn','Delaney','Carroll','Foley','Hogan','Mooney','Tierney','Gorman','Flanagan'];
+const LOGO_COLS = ['#2f9a57','#e8b53a','#f08a2c','#43a8d8','#a77de0','#c9773b','#e06aa4','#7e9aa8','#3f7d5a','#b04a3a'];
+
+const usedNames = new Set();
+function makeName(ind) {
+  for (let t = 0; t < 50; t++) {
+    const n = `${pick(P1)} ${pick(P2[ind])} ${/Community|Education/.test(ind) ? '' : pick(SUF)}`.trim();
+    if (!usedNames.has(n)) { usedNames.add(n); return n; }
+  }
+  return `${pick(P1)} ${pick(P2[ind])} ${ri(2, 99)}`;
+}
+const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '');
+const SIZES = [['6m × 6m', 1450], ['9m × 9m', 2650], ['12m × 12m', 4200], ['15m × 15m', 6100], ['3m × 3m (Pavilion)', 780]];
+const BOOKING = ['Paid in Full','Paid in Full','Paid in Full','Paid in Full','Paid in Full','Paid in Full','Deposit Paid','Deposit Paid','Deposit Paid','Applied'];
+const DOCST = ['Approved','Approved','Approved','Approved','Approved','Approved','Approved','Approved','Approved','Approved','Approved','In Review','Missing','Missing','Rejected'];
+
+const EX = [];
+function newExhibitor(zoneId, extra) {
+  const z = ZMAP[zoneId], ind = pick(z.ind), name = makeName(ind);
+  const fn = pick(FN), ln = pick(LN), size = pick(SIZES);
+  const booking = pick(BOOKING);
+  const e = {
+    id: 1000 + EX.length, name, ind, zone: zoneId, contact: `${fn} ${ln}`,
+    email: `${slug(fn)}@${slug(name).slice(0, 18)}.ie`, phone: `+353 ${ri(83, 89)} ${ri(100, 999)} ${ri(1000, 9999)}`,
+    web: `https://www.${slug(name).slice(0, 18)}.ie`, size: size[0], price: size[1], booking,
+    paid: booking === 'Paid in Full' ? size[1] : booking === 'Deposit Paid' ? Math.round(size[1] * .3) : 0,
+    ins: booking === 'Applied' ? 'Missing' : pick(DOCST), rams: booking === 'Applied' ? 'Missing' : pick(DOCST),
+    returning: R() < .72, years: ri(1, 38), invoice: String(ri(100, 4999)).padStart(6, '0'), hidden: false,
+    logo: pick(LOGO_COLS), cell: null, booked: new Date(2026, ri(0, 9), ri(1, 28)), passes: ri(2, 12), views: ri(40, 2600),
+    desc: `${name.replace(/ (Ltd|Group|Ireland|& Sons)$/, '')} — ${ind.toLowerCase()} specialists serving Irish farms for ${ri(3, 60)} years.`,
+    ...extra
+  };
+  EX.push(e); return e;
+}
+// fill ~64% of stands with exhibitors, then add a few new bookings awaiting a stand
+const order = CELLS.map(c => c.id).sort(() => R() - .5);
+order.slice(0, Math.round(CELLS.length * .94)).forEach(cid => { const c = CELLS[cid]; const e = newExhibitor(c.zone); e.cell = cid; c.ex = e.id; });
+for (let i = 0; i < 26; i++) newExhibitor(pick(ZONES).id, {booking: i < 15 ? 'Deposit Paid' : 'Applied', booked: new Date(2026, 9, ri(1, 27)), returning: false});
+EX.forEach(e => { if (e.booking === 'Deposit Paid') e.paid = Math.round(e.price * .3); if (e.booking === 'Applied') e.paid = 0; });
+const exById = id => EX.find(e => e.id === id);
+const standLabel = e => { if (e.cell == null) return null; const c = CELLS[e.cell]; return `Block ${c.block} · Row ${c.row} · Stand ${c.num}`; };
+const initials = n => n.split(/\s+/).filter(w => /^[A-Za-zÀ-ÿ]/.test(w)).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+
+const AG_CATS = {Ploughing:'#e8b53a', Demo:'#43a8d8', Livestock:'#c9773b', Fashion:'#e06aa4', 'Main Arena':'#f08a2c', 'Talks':'#a77de0', Family:'#6fcf97'};
+const LOCS = ['Main Arena','Ploughing Field 1','Ploughing Field 2','Demo Area A','Livestock Ring','Fashion Pavilion','Agri-Tech Stage','Forestry Demo Site','Family Zone'];
+let AGENDA = [
+  [1,'Official Opening of the Championships','Main Arena','Main Arena','09:30','10:30','An Taoiseach & NPA Managing Director'],
+  [1,'Senior Conventional Ploughing — Qualifier','Ploughing','Ploughing Field 1','10:00','16:00','Chief Steward: P. Kavanagh'],
+  [1,'Robotic Milking Live Demo','Demo','Agri-Tech Stage','11:00','11:45','Golden Vale Dairy Systems'],
+  [1,'Sheep Shearing Exhibition','Livestock','Livestock Ring','12:00','13:00','Irish Sheep Shearing Assoc.'],
+  [1,'Farm Safety: Talk Before You Tractor','Talks','Agri-Tech Stage','14:00','14:45','HSA Inspector Aoife Byrne'],
+  [1,'Fashion Show — Autumn Country Collection','Fashion','Fashion Pavilion','15:00','16:00','Presented by Liffey Country Wear'],
+  [2,'Vintage Horse Ploughing','Ploughing','Ploughing Field 2','10:00','15:00','Vintage Society Judges'],
+  [2,'Forestry Harvester & Chainsaw Demo','Demo','Forestry Demo Site','11:00','12:00','Barrow Forestry Services'],
+  [2,'Queen of the Land — Semi Final','Main Arena','Main Arena','12:30','14:00','MC: Darragh Moran'],
+  [2,'Drone Crop-Spraying Showcase','Demo','Demo Area A','13:00','13:45','Shannon Precision Farming'],
+  [2,'Suckler Cattle Showcase','Livestock','Livestock Ring','14:00','15:30','Show Judge: Colm Hogan'],
+  [2,'Kids Pet Show & Tractor Colouring','Family','Family Zone','11:00','16:00','NPA Family Team'],
+  [3,'Senior World-Style Ploughing Final','Ploughing','Ploughing Field 1','09:30','15:30','International Judging Panel'],
+  [3,'Tug-of-War All-Ireland Final','Main Arena','Main Arena','12:00','13:00','Irish Tug-of-War Assoc.'],
+  [3,'Renewable Energy on the Farm — Panel','Talks','Agri-Tech Stage','11:30','12:30','SEAI & Teagasc'],
+  [3,'Sheepdog Trials','Livestock','Livestock Ring','13:30','15:00','Trial Director: Úna Keane'],
+  [3,'Queen of the Land — Final & Crowning','Main Arena','Main Arena','15:30','16:30','NPA Board'],
+  [3,'Closing Ceremony & Trophy Presentations','Main Arena','Main Arena','17:00','17:45','NPA Managing Director'],
+].map((a, i) => ({id: i + 1, day: a[0], title: a[1], cat: a[2], loc: a[3], start: a[4], end: a[5], who: a[6], favs: ri(120, 4800)}));
+const DAY_LABEL = {1: 'Tue 21 Sept 2027', 2: 'Wed 22 Sept 2027', 3: 'Thu 23 Sept 2027'};
+
+/* Kilbride Tractors on Stand 268 is the demo exhibitor shared with exhibitor.html and admin.html */
+const LINK_CELL = CELLS.find(c => c.num === 268);
+let KT = LINK_CELL.ex != null ? exById(LINK_CELL.ex) : null;
+if (!KT) { KT = newExhibitor('mach'); KT.cell = LINK_CELL.id; LINK_CELL.ex = KT.id; }
+Object.assign(KT, {zone: 'mach', ind: 'Tractors & Machinery', contact: 'Seán Murphy', email: 'sean@kilbridetractors.ie', size: '12m × 12m', price: 4200, logo: '#2f9a57', returning: true, years: 14});
+function syncKT() { const p = NPC.get().profile; Object.assign(KT, {name: p.company, web: p.web, phone: p.phone, desc: p.desc}); }
+syncKT();
+const LISTED = EX.filter(e => e.cell != null && e.booking !== 'Applied').sort((a, b) => a.name.localeCompare(b.name));
+const FEATURED = [KT, LISTED.find(e => e.zone === 'agri' && e.ind === 'Dairy & Milking'), LISTED.find(e => e.zone === 'home' && e.ind === 'Renewable Energy')].filter(Boolean);
+const ZSHORT = {agri: 'Livestock & Dairy', mach: 'Machinery & Plant', fin: 'Finance & Education', motor: 'Motor & Trucks', home: 'Home & Lifestyle'};
+
+/* facilities traced from the site map (same 1400 × 1979 coordinate space as the stands) */
+const FTYPES = {
+  food: {n: 'Food', em: '🍔', c: '#f08a2c'}, wc: {n: 'Toilets', em: '🚻', c: '#2f80ed'}, aid: {n: 'First aid', em: '✚', c: '#1f9d55'},
+  info: {n: 'Info & access', em: 'i', c: '#6b5bd6'}, ev: {n: 'Arenas & demos', em: '🎪', c: '#c0392b'}, park: {n: 'Parking', em: 'P', c: '#1d4ed8'}, gate: {n: 'Gates', em: '', c: '#d6312b'},
+};
+const FAC = [
+  ['catA','food','Catering A','Hot food, coffee & covered seating',693,669], ['catB','food','Catering B','Food village & licensed bar',1223,1185], ['catC','food','Catering C','Hot food & picnic area',877,1763],
+  ['wc1','wc','Toilets — Agri Pavilion parking','Accessible toilets',339,219], ['wc2','wc','Toilets — Block 3','Beside the Grandstand',679,635], ['wc3','wc','Toilets — Block 4','Accessible toilets',824,635],
+  ['wc4','wc','Toilets — Catering B','Accessible toilets',1044,1000], ['wc5','wc','Toilets — Row 22','Accessible toilets',1044,1333], ['wc6','wc','Toilets — Catering C','Accessible toilets & baby change',764,1785],
+  ['wc7','wc','Toilets — Lower Block 5','Accessible toilets',1044,1686], ['wc8','wc','Toilets — Block 1 south','Accessible toilets',515,1345],
+  ['aid1','aid','First Aid Post — Catering A','Order of Malta',703,731], ['aid2','aid','First Aid Post — Block 4','Order of Malta',926,981], ['aid3','aid','First Aid Post — Row 20','Order of Malta',872,1298],
+  ['aid4','aid','First Aid Post — Lower Block 4','Order of Malta',891,1687], ['med','aid','Medical Centre','Doctors & ambulance base',356,498],
+  ['npa','info','NPA Office','Information, lost property & lost children point',799,926], ['dwu1','info','Disability Welfare Unit','Wheelchair loan & accessible parking help',703,605],
+  ['dwu2','info','Disability Welfare Unit (south)','Wheelchair loan',795,1813], ['baby','info','Baby Changing','Stand 206',1131,1012], ['mob','info','Mobility Scooter Hire','Book on arrival',346,1213],
+  ['arena','ev','Main Arena & Grandstand','Opening, Queen of the Land, tug-of-war',622,650], ['pf1','ev','Ploughing Field 1','Senior & intermediate classes',919,339],
+  ['pf2','ev','Ploughing Field 2','Vintage & horse ploughing',1298,573], ['ring','ev','Livestock Ring','Sheep shearing, cattle & sheepdogs',277,788],
+  ['fash','ev','Fashion Pavilion','Fashion shows daily',354,1464], ['tech','ev','Agri-Tech Stage','Talks & live demos',509,728], ['forest','ev','Forestry Demo Site','Harvester & chainsaw demos',543,1602],
+  ['family','ev','Family Zone & Playground','Pet show, tractor colouring',732,1428], ['demoA','ev','Demo Area A','Drone & machinery demos',301,339], ['vintage','ev','Vintage Display','Vintage tractors & machinery',498,356],
+  ['cpBlue','park','Blue Car Parks 21–22','Cork / Munster — via Gates 4 & 6',78,145], ['cpGrey','park','Grey Car Park 20','South East (Kilkenny) — via Gate 3',85,337],
+  ['cpGreen','park','Green Car Parks 4–6','West — via Gates 4 & 6',908,139], ['cpBrown','park','Brown Car Parks 1–2','Limerick / Kerry — via Gates 4 & 6',530,65],
+  ['cpYel','park','Yellow Car Parks 17–19','South East (Carlow) — via Gate 1',78,1397], ['cpOr','park','Orange Car Park 16','North, westbound on N7 — via Gate 11',79,1719],
+  ['cpYel2','park','Yellow Car Parks 14–15','South East (Carlow) — via Gate 11',500,1906], ['cpPink','park','Pink Car Parks 8–11','North via Mullingar — via Gate 9',1325,1245],
+  ['bus1','park','Bus Park 1 & Shuttle','Shuttle buses every 10 minutes',205,816], ['exP','park','Exhibitor Parking','Exhibitor car park passes only',1093,1488],
+  ...[['PG3',318,720],['G02',322,830],['PG1',334,993],['G1A',344,1036],['G14',368,1080],['G13',419,1239],['G12',460,1333],['PG11',704,1861],['G10',1078,1842],['G10A',987,1905],['PG9',1086,1362],['G9A',1086,1410],['G08',1082,949],['G07',955,694],['PG4',332,113],['G05',386,89],['PG6',512,49]]
+    .map(([g, x, y]) => ['g' + g, 'gate', 'Gate ' + g, g.startsWith('PG') ? 'Pedestrian gate' : 'Vehicle & pedestrian gate', x, y]),
+].map(([id, t, n, s, x, y]) => ({id, t, n, s, x, y}));
+const facById = id => FAC.find(f => f.id === id);
+const AG_LOC = {'Main Arena': 'arena', 'Ploughing Field 1': 'pf1', 'Ploughing Field 2': 'pf2', 'Demo Area A': 'demoA', 'Livestock Ring': 'ring', 'Fashion Pavilion': 'fash', 'Agri-Tech Stage': 'tech', 'Forestry Demo Site': 'forest', 'Family Zone': 'family'};
+const YOU = {x: 344, y: 1036, n: 'Gate G1A'};
+
+/* news for visitors (the admin's News & Alerts screen sends these) */
+const NEWS = [
+  {type: 'General', em: '🎟️', t: 'Early-bird tickets on sale now', b: 'Save 20% on adult day passes and 3-day passes for the 2027 Championships in Rathangan — this month only.', d: '14 Oct 2026', cta: ['Buy tickets', '#/tickets']},
+  {type: 'Sponsor', em: '⭐', t: 'Win a weekend in Kerry 🏔️', b: 'Visit the Kilbride Tractors stand to enter the draw. Winners announced on the Main Arena on Thursday.', d: '12 Oct 2026', cta: ['View exhibitor', '#/exhibitor/' + KT.id]},
+  {type: 'General', em: '📍', t: '2027 Championships confirmed for Rathangan', b: 'The National Ploughing Championships move to Rathangan, Co. Kildare, from 21–23 September 2027. The new site plan will appear in the app as soon as it is published.', d: '8 Oct 2026'},
+  {type: 'Traffic', em: '🚗', t: 'Plan your journey for 2027', b: 'Park & ride from Kildare town and Newbridge, with shuttle buses every 10 minutes. Colour-coded car parks by direction of travel — full routes published in spring.', d: '2 Oct 2026', cta: ['Traffic map', '#/map/l:park']},
+  {type: 'Safety', em: '⚠️', t: 'Farm Safety Week: Talk Before You Tractor', b: 'Catch the HSA talk on the Agri-Tech Stage on day one, and visit the Farm Safety stands in the Financial, Government & Education zone.', d: '20 Sept 2026'},
+  {type: 'Weather', em: '🌦️', t: 'County qualifier moved to Saturday', b: 'The Wexford county ploughing match moves to Saturday 7 November due to the weather warning.', d: '28 Sept 2026'},
+  {type: 'General', em: '🏆', t: 'Thank you, Screggan!', b: '296,000 visitors over three days at the 2026 Championships. See you in Rathangan next September.', d: '20 Sept 2026'},
+];
+const NCOL = {General: '#43a8d8', Safety: '#e5534b', Traffic: '#f08a2c', Weather: '#a77de0', Sponsor: '#e8b53a'};
+const SHOWDAY = [
+  {em: '🚗', c: '#f08a2c', t: 'Car Park B now full', b: 'Please follow stewards to Car Park D via the R401. Shuttle buses every 10 minutes.', d: 'Show day sample · 10:15'},
+  {em: '⚠️', c: '#e5534b', t: 'Lost child — please help', b: 'A 6-year-old boy in a red jacket is being looked after at the NPA Office. Parents please go there now.', d: 'Show day sample · 13:02'},
+  {em: '🌦️', c: '#a77de0', t: 'Heavy showers from 3pm', b: 'Met Éireann yellow rain warning. Covered seating is available at Catering A and B.', d: 'Show day sample · 14:30'},
+];
+
+/* tickets — prices match the admin's Tickets screen (early-bird on) */
+const TT = [
+  {id: 'adult', n: 'Adult day ticket', s: 'Entry on one day', p: 24, g: 30}, {id: 'conc', n: 'Student / OAP day ticket', s: 'Valid ID may be checked at the gate', p: 16, g: 20},
+  {id: 'child', n: 'Child (under 14)', s: 'Free with a paying adult', p: 0, g: 0}, {id: 'family', n: 'Family day ticket', s: '2 adults + 3 children', p: 56, g: 70},
+  {id: 'three', n: '3-day pass', s: 'Entry on all three days', p: 60, g: 75, all: true}, {id: 'park', n: 'Car parking (pre-booked)', s: 'Guaranteed space · per car', p: 12, g: 15},
+];
+
+/* exhibitor portal order products — same list as exhibitor.html */
+const PRODUCTS = [
+  {id:'elec', name:'Electricity', sub:'Power supply', em:'⚡', by:'2027-08-20', opts:[['16A single-phase', 185], ['32A single-phase', 290], ['32A three-phase', 420], ['63A three-phase', 760]]},
+  {id:'water', name:'Water Connection', sub:'Mains water', em:'💧', by:'2027-08-20', opts:[['Standard connection', 140], ['Connection + sink unit', 220]]},
+  {id:'wifi', name:'Stand WiFi', sub:'3-day connection', em:'📶', by:'2027-09-01', opts:[['Standard (up to 5 devices)', 95], ['Business (up to 20 devices)', 240]]},
+  {id:'tele', name:'Teleporter Booking', sub:'Teleporter booking', em:'🏗️', by:'2027-09-01', opts:[['1 hour — set-up', 150], ['Half day — set-up', 480], ['1 hour — break-down', 150]]},
+  {id:'pass', name:'Extra Exhibitor Passes', sub:'Staff passes', em:'🎟️', by:'2027-09-10', opts:[['Pack of 5 passes', 60]], qty:true},
+  {id:'car', name:'Exhibitor Car Park Pass', sub:'Reserved parking', em:'🚗', by:'2027-09-10', opts:[['3-day pass', 45]], qty:true},
+  {id:'skip', name:'Waste Skip', sub:'Delivered Monday', em:'♻️', by:'2027-09-01', opts:[['4 yard skip', 120], ['8 yard skip', 210]]},
+  {id:'furn', name:'Stand Furniture Pack', sub:'Table, chairs & counter', em:'🪑', by:'2027-09-01', opts:[['Standard pack', 230], ['Premium pack', 390]]},
+];
+const longDate = iso => new Date(iso + 'T12:00').toLocaleDateString('en-IE', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'});
+
+/* per-viewer app state (tickets, saved exhibitors, plan) — browser storage only */
+const AKEY = 'npc-visitor-app-v1';
+const ADEF = {tickets: [], saved: [], plan: [], signedIn: false, readNews: false, prefs: {traffic: true, safety: true, sponsor: false, agenda: true}, fb: null};
+let A;
+try { A = Object.assign(JSON.parse(JSON.stringify(ADEF)), JSON.parse(localStorage.getItem(AKEY)) || {}); } catch (_) { A = JSON.parse(JSON.stringify(ADEF)); }
+const saveA = () => { try { localStorage.setItem(AKEY, JSON.stringify(A)); } catch (_) {} };
+
+/* ============================================================
+   UI helpers
+   ============================================================ */
+const ic = (n, s) => `<svg class="i"${s ? ` style="width:${s}px;height:${s}px"` : ''}><use href="#i-${n}"/></svg>`;
+const lg = (e, cls = '') => `<div class="lg ${cls}" style="background:${e.logo}">${initials(e.name)}</div>`;
+const standTxt = e => { const c = CELLS[e.cell]; return `Stand ${c.num} · Block ${c.block} · Row ${c.row}`; };
+const BRAND = h => `<img class="logo" src="npc-logo.png" alt="National Ploughing Championships" style="height:${h}px">`;
+const LOGO = (s = 44) => `<svg width="${s}" height="${s}" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="30" fill="#0f2318" stroke="#e8b53a" stroke-width="2"/><path d="M8 44c10 6 30 8 48-6" stroke="#f08a2c" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M10 49c12 4 28 4 42-6" stroke="#4cc276" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M32 40V12" stroke="#e8b53a" stroke-width="2.4" stroke-linecap="round"/><g fill="#e8b53a"><ellipse cx="28" cy="16" rx="3" ry="5.5" transform="rotate(-25 28 16)"/><ellipse cx="36" cy="16" rx="3" ry="5.5" transform="rotate(25 36 16)"/><ellipse cx="27.5" cy="24" rx="3" ry="5.5" transform="rotate(-25 27.5 24)"/><ellipse cx="36.5" cy="24" rx="3" ry="5.5" transform="rotate(25 36.5 24)"/><ellipse cx="27.5" cy="32" rx="3" ry="5.5" transform="rotate(-25 27.5 32)"/><ellipse cx="36.5" cy="32" rx="3" ry="5.5" transform="rotate(25 36.5 32)"/><ellipse cx="32" cy="10" rx="2.6" ry="5"/></g></svg>`;
+const unreadCount = () => (A.readNews ? 0 : SHOWDAY.length) + (A.signedIn ? NPC.get().unread || 0 : 0);
+const topIcons = () => `<button class="icb" data-go="#/alerts" title="Notifications">${ic('bell')}${unreadCount() ? `<span class="dotn">${unreadCount()}</span>` : ''}</button><button class="icb av" data-go="#/profile" title="Profile">${ic('user')}</button>`;
+function hdr(title, sub) {
+  return `<div class="hd"><button class="icb sm" data-act="back" title="Back">${ic('back', 26)}</button>
+    <a class="brand" href="#/home">${BRAND(46)}</a>${topIcons()}</div>
+    ${title ? `<div class="ttl"><h1>${title}</h1>${sub ? `<p>${sub}</p>` : ''}</div>` : ''}`;
+}
+const pill = (txt, c) => `<span class="pill p-${c}">${txt}</span>`;
+function qr(str, px = 170) {
+  let s = 7; for (const ch of String(str)) s = (s * 31 + ch.charCodeAt(0)) >>> 0;
+  const rnd = () => (s = (s * 1664525 + 1013904223) >>> 0) / 4294967296, N = 25;
+  let d = '';
+  for (let y = 0; y < N; y++) for (let x = 0; x < N; x++) {
+    if ((x < 8 && y < 8) || (x > N - 9 && y < 8) || (x < 8 && y > N - 9)) continue;
+    if (rnd() < .5) d += `M${x} ${y}h1v1h-1z`;
+  }
+  const f = (x, y) => `M${x} ${y}h7v7h-7zM${x + 1} ${y + 1}v5h5v-5zM${x + 2} ${y + 2}h3v3h-3z`;
+  return `<svg width="${px}" height="${px}" viewBox="-2 -2 29 29" style="background:#fff;border-radius:10px;flex:none"><path fill="#0b1d13" fill-rule="evenodd" d="${d}${f(0, 0)}${f(N - 7, 0)}${f(0, N - 7)}"/></svg>`;
+}
+let toastT;
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.innerHTML = `<span style="font-size:18px">🔔</span><span>${msg}</span>`; t.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), 3200);
+}
+function sheet(html) { document.getElementById('sheet').innerHTML = `<div class="grab"></div>${html}`; document.getElementById('scrim').classList.add('on'); }
+function closeSheet() { document.getElementById('scrim').classList.remove('on'); }
+
+/* ============================================================
+   State + router
+   ============================================================ */
+const S = {dirZone: 'all', dirQ: '', dirLimit: 40, agDay: 1, agCat: 'All', newsType: 'All', day: 1, cart: {}, mq: '', map: null, ordFor: null, ordOpt: 0, ordQty: 1, fb: {overall: 0, org: 0, site: 0}};
+const parseRoute = () => { const [name, ...rest] = location.hash.replace(/^#\/?/, '').split('/'); return {name: name || 'home', arg: decodeURIComponent(rest.join('/'))}; };
+const PARENT = {directory: 'home', exhibitor: 'directory', map: 'home', agenda: 'home', news: 'home', alerts: 'home', tickets: 'home', checkout: 'tickets', mytickets: 'profile', profile: 'home', 'portal-login': 'home', portal: 'home', 'portal-docs': 'portal', 'portal-passes': 'portal', 'portal-orders': 'portal', 'portal-feedback': 'portal'};
+const STACK = [];
+window.addEventListener('hashchange', () => {
+  const h = location.hash;
+  if (STACK.length > 1 && STACK[STACK.length - 2] === h) STACK.pop(); else STACK.push(h);
+  closeSheet(); render();
+});
+
+const VIEWS = {};
+const AFTER = {};
+
+/* ---------- home ---------- */
+VIEWS.home = () => {
+  const days = Math.max(0, Math.ceil((EVENT_START - new Date()) / 864e5));
+  const T = [
+    ['#/directory', 'Exhibitor Directory', 'Find exhibitors and contacts', 'building', '#2f9a57'],
+    ['#/map', 'Maps', 'Navigate the Championships', 'map', '#f08a2c'],
+    ['#/agenda', 'Agenda', 'View event schedule', 'cal', '#2f9a57'],
+    ['#/news', 'News', 'Latest updates and announcements', 'news', '#f08a2c'],
+  ];
+  return `<div class="hd" style="padding-top:14px"><a class="brand" href="#/home">${BRAND(78)}</a>${topIcons()}</div>
+  <div class="pow" style="margin-top:6px">Powered by DMC Consultancy</div>
+  <div class="welcome"><h1>Welcome to the Ploughing App</h1><p>Explore everything the Championships has to offer</p></div>
+  <div class="cd">${ic('cal', 18)}<span>21–23 Sept 2027 · Rathangan</span><b style="margin-left:auto;white-space:nowrap">${days} days to go</b></div>
+  ${T.map(([h, t, s, i, c]) => `<div class="tile" data-go="${h}"><div class="ic" style="background:${c}">${ic(i)}</div><div class="tx"><b>${t}</b><small>${s}</small></div>${ic('chev', 26)}</div>`).join('')}
+  <div class="tile hl" data-go="#/tickets"><div class="ic" style="background:#fff;color:#2a8a55">${ic('ticket')}</div><div class="tx"><b>Admission Tickets</b><small>Purchase today — early-bird prices</small></div>${ic('chev', 26)}</div>
+  <div class="tile gold" data-go="${A.signedIn ? '#/portal' : '#/portal-login'}"><div class="ic" style="background:var(--gold);color:#2a1d00">${ic('brief')}</div><div class="tx"><b>Exhibitor Portal</b><small>${A.signedIn ? `Stand 268 • ${esc(KT.name)}` : 'Orders, documents & staff passes'}</small></div>${ic('chev', 26)}</div>
+  <div class="sec sm" style="display:flex;justify-content:space-between;align-items:center">Latest news <a href="#/news" style="color:var(--green);font-size:13.5px;text-decoration:none">See all</a></div>
+  ${newsCard(NEWS[0])}`;
+};
+
+/* ---------- directory ---------- */
+function dirList() {
+  const q = S.dirQ.trim().toLowerCase();
+  let L = LISTED.filter(e => S.dirZone === 'all' || (S.dirZone === 'saved' ? A.saved.includes(e.id) : e.zone === S.dirZone));
+  if (q) L = L.filter(e => e.name.toLowerCase().includes(q) || e.ind.toLowerCase().includes(q) || String(CELLS[e.cell].num) === q);
+  if (!L.length) return `<div class="empty"><div class="big">${S.dirZone === 'saved' ? '⭐' : '🔍'}</div>${S.dirZone === 'saved' ? 'Tap the star on any exhibitor to save them here.' : 'No exhibitors match your search.'}</div>`;
+  return `<div style="padding:0 18px 6px;color:var(--muted);font-size:12.5px">${num(L.length)} exhibitor${L.length === 1 ? '' : 's'}</div>` +
+    L.slice(0, S.dirLimit).map(e => `<div class="li" data-go="#/exhibitor/${e.id}">${lg(e)}<div class="tx"><b>${esc(e.name)}</b><small>${e.ind}</small><small style="color:var(--gold)">${standTxt(e)}</small></div>
+      <button class="star ${A.saved.includes(e.id) ? 'on' : ''}" data-act="save" data-id="${e.id}" title="Save">${ic('star', 22)}</button></div>`).join('') +
+    (L.length > S.dirLimit ? `<div style="padding:16px 18px"><button class="btn btn-l" data-act="more">Show more (${num(L.length - S.dirLimit)} left)</button></div>` : '');
+}
+VIEWS.directory = () => `${hdr('Exhibitor Directory', `${num(LISTED.length)} exhibitors across 5 zones`)}
+  <div class="srch">${ic('search')}<input id="dirQ" placeholder="Search name, product or stand no." value="${esc(S.dirQ)}" data-q="dir"></div>
+  <div class="chips">${[['all', 'All'], ['saved', '★ Saved'], ...ZONES.map(z => [z.id, ZSHORT[z.id]])].map(([k, l]) => `<button class="chip ${S.dirZone === k ? 'on' : ''}" data-act="dirZone" data-k="${k}">${k.length > 3 || k === 'all' ? '' : ''}${ZMAP[k] ? `<i style="width:9px;height:9px;border-radius:50%;background:${ZMAP[k].color}"></i>` : ''}${l}</button>`).join('')}</div>
+  ${!S.dirQ && S.dirZone === 'all' ? `<div class="sec" style="padding-top:4px">Featured exhibitors</div><div class="feat">${FEATURED.map(e => `<div class="fc" data-go="#/exhibitor/${e.id}"><div style="display:flex;justify-content:space-between;align-items:flex-start">${lg(e)}<span class="tag">Sponsored</span></div><b>${esc(e.name)}</b><small>${e.ind} · Stand ${CELLS[e.cell].num}</small></div>`).join('')}</div><div class="sec" style="padding-top:4px">All exhibitors</div>` : ''}
+  <div id="dirList">${dirList()}</div>`;
+
+VIEWS.exhibitor = id => {
+  const e = exById(+id) || KT, z = ZMAP[e.zone], c = CELLS[e.cell], saved = A.saved.includes(e.id);
+  const more = LISTED.filter(x => x.zone === e.zone && x.id !== e.id && Math.abs(CELLS[x.cell].num - c.num) < 12).slice(0, 3);
+  return `${hdr()}
+  <div class="prof">${lg(e, 'xl')}<h1>${esc(e.name)}</h1><span class="pill" style="color:${z.color};border-color:${z.color}66;background:${z.color}1f">${z.name}</span></div>
+  <div class="acts"><button data-act="ext" data-m="Calling ${esc(e.phone)}">${ic('phone')}Call</button><button data-act="ext" data-m="Opening email to ${esc(e.email)}">${ic('mail')}Email</button><button data-act="ext" data-m="Opening ${esc(e.web)}">${ic('globe')}Website</button><button class="${saved ? 'on' : ''}" data-act="save" data-id="${e.id}">${ic('star')}${saved ? 'Saved' : 'Save'}</button></div>
+  <div class="card"><div class="standbox"><div class="num">${c.num}</div><div style="flex:1"><b style="font-size:16px">Stand ${c.num}</b><div class="muted" style="font-size:13px">Block ${c.block} · Row ${c.row}</div></div></div>
+    <button class="btn btn-g" style="margin-top:14px" data-go="#/map/c:${c.id}">${ic('pin')}Show on map</button></div>
+  <div class="sec">About</div><div class="card" style="font-size:14px;line-height:1.55;color:#d7e4dc">${esc(e.desc)}</div>
+  <div class="sec">Details</div><div class="card" style="padding:4px 16px">
+    <div class="kv"><span>Category</span>${e.ind}</div><div class="kv"><span>Contact</span>${esc(e.contact)}</div><div class="kv"><span>Phone</span>${esc(e.phone)}</div><div class="kv"><span>Website</span><span style="color:var(--green)">${esc(e.web.replace('https://', ''))}</span></div>${e.returning ? `<div class="kv"><span>Exhibiting</span>${e.years} years</div>` : ''}</div>
+  ${more.length ? `<div class="sec">Nearby stands</div>${more.map(x => `<div class="li" data-go="#/exhibitor/${x.id}">${lg(x)}<div class="tx"><b>${esc(x.name)}</b><small>${x.ind} · Stand ${CELLS[x.cell].num}</small></div>${ic('chev')}</div>`).join('')}` : ''}`;
+};
+
+/* ---------- map ---------- */
+const PARK_ALERT = 'Exhibitor set-up: enter via Gate G1A or G10A only, Mon 20 Sept 07:00–20:00. Public car parks open from 07:30 on show days.';
+VIEWS.map = arg => {
+  const M = S.map;
+  const lay = Object.keys(FTYPES).filter(k => k !== 'gate');
+  return `<div class="hd" style="padding-bottom:8px"><button class="icb sm" data-act="back">${ic('back', 26)}</button><div style="margin-right:auto"><b style="font-size:18px">${M.layers.has('park') && arg === 'l:park' ? 'Traffic Management Map' : 'Site Map'}</b><div class="muted" style="font-size:12px">Updated live by the NPA</div></div>${topIcons()}</div>
+  ${arg === 'l:park' ? `<div class="alertbar">${ic('alert', 18)}<span>${PARK_ALERT}</span></div>` : ''}
+  <div class="mapwrap" id="mapWrap">
+    <div id="mapIn"><img src="${MAP_IMG}" alt="Championships site map"><div id="pins"></div></div>
+    <div class="mtop"><div class="srch">${ic('search')}<input id="mapQ" placeholder="Search exhibitors, stands or facilities" value="${esc(S.mq)}" data-q="map" autocomplete="off"></div><div class="mres" id="mapRes"></div></div>
+    <div class="mctl"><button data-act="zoom" data-d="1.4" title="Zoom in">${ic('plus')}</button><button data-act="zoom" data-d="0.7" title="Zoom out">${ic('minus')}</button><button data-act="locate" title="Where am I">${ic('loc')}</button></div>
+    <div id="mapPop"></div>
+    <div class="mlayers"><div class="chips">${lay.map(k => `<button class="chip ${M.layers.has(k) ? 'on' : ''}" data-act="layer" data-k="${k}"><span>${FTYPES[k].em === 'i' ? 'ℹ️' : FTYPES[k].em === 'P' ? '🅿️' : FTYPES[k].em}</span>${FTYPES[k].n}</button>`).join('')}</div></div>
+  </div>`;
+};
+function mapPins() {
+  const M = S.map, sel = M.sel;
+  let h = `<div class="you" style="left:${YOU.x}px;top:${YOU.y}px" title="You are here"></div>`;
+  FAC.filter(f => M.layers.has(f.t) || (sel && sel.f === f.id)).forEach(f => {
+    const T = FTYPES[f.t];
+    h += `<div class="pin ${f.t === 'gate' ? 'gate' : ''} ${sel && sel.f === f.id ? 'sel' : ''}" data-pin="${f.id}" style="left:${f.x}px;top:${f.y}px;background:${T.c}" title="${esc(f.n)}">${f.t === 'gate' ? f.n.replace('Gate ', '') : T.em}</div>`;
+  });
+  if (sel && sel.c != null) h += `<div class="hit" style="left:${CELLS[sel.c].x}px;top:${CELLS[sel.c].y}px"></div>`;
+  document.getElementById('pins').innerHTML = h;
+  const pop = document.getElementById('mapPop');
+  if (!sel) { pop.innerHTML = ''; return; }
+  if (sel.c != null) {
+    const c = CELLS[sel.c], e = c.ex != null ? exById(c.ex) : null;
+    pop.innerHTML = `<div class="mpop"><button class="x" data-act="unsel">${ic('x', 16)}</button><div class="top">${e ? lg(e) : `<div class="lg" style="background:#9aa79f">${c.num}</div>`}<div><b>${e ? esc(e.name) : 'Vacant stand'}</b><small>Stand ${c.num} · Block ${c.block} · Row ${c.row}</small><small>${ZMAP[c.zone].name}</small></div></div>
+      ${e ? `<div class="btns"><button class="btn btn-g" data-go="#/exhibitor/${e.id}">View profile</button></div>` : ''}</div>`;
+  } else {
+    const f = facById(sel.f), T = FTYPES[f.t];
+    pop.innerHTML = `<div class="mpop"><button class="x" data-act="unsel">${ic('x', 16)}</button><div class="top"><div class="lg" style="background:${T.c};font-size:20px">${f.t === 'gate' ? '🚪' : T.em === 'i' ? 'ℹ️' : T.em === 'P' ? '🅿️' : T.em}</div><div><b>${esc(f.n)}</b><small>${esc(f.s)}</small></div></div></div>`;
+  }
+}
+const selPoint = () => { const s = S.map.sel; if (!s) return null; if (s.c != null) return [CELLS[s.c].x, CELLS[s.c].y]; const f = facById(s.f); return [f.x, f.y]; };
+function mapApply() {
+  const M = S.map, w = document.getElementById('mapWrap'), el = document.getElementById('mapIn');
+  if (!w || !el) return;
+  const W = w.clientWidth, H = w.clientHeight, mw = 1400 * M.scale, mh = 1979 * M.scale;
+  M.panX = mw <= W ? (W - mw) / 2 : Math.min(0, Math.max(W - mw, M.panX));
+  M.panY = mh <= H ? (H - mh) / 2 : Math.min(60, Math.max(H - mh - 60, M.panY));
+  el.style.transform = `translate(${M.panX}px,${M.panY}px) scale(${M.scale})`;
+  el.style.setProperty('--inv', 1 / M.scale);
+}
+function mapZoom(f, cx, cy) {
+  const M = S.map, w = document.getElementById('mapWrap');
+  const W = w.clientWidth, H = w.clientHeight; cx ??= W / 2; cy ??= H / 2;
+  const ns = Math.min(2.2, Math.max(W / 1400, M.scale * f));
+  M.panX = cx - (cx - M.panX) * ns / M.scale; M.panY = cy - (cy - M.panY) * ns / M.scale; M.scale = ns;
+  mapApply(); mapPins();
+}
+function mapCenter(x, y, scale) {
+  const M = S.map, w = document.getElementById('mapWrap');
+  M.scale = scale; M.panX = w.clientWidth / 2 - x * scale; M.panY = w.clientHeight / 2.6 - y * scale; mapApply();
+}
+function mapResults() {
+  const q = S.mq.trim().toLowerCase(), box = document.getElementById('mapRes');
+  if (!box) return;
+  if (!q) { box.innerHTML = ''; return; }
+  const ex = LISTED.filter(e => e.name.toLowerCase().includes(q) || String(CELLS[e.cell].num) === q).slice(0, 4);
+  const fa = FAC.filter(f => f.n.toLowerCase().includes(q) || FTYPES[f.t].n.toLowerCase().includes(q)).slice(0, 4);
+  box.innerHTML = [...ex.map(e => `<button data-act="mapPick" data-c="${e.cell}">${lg(e)}<span><b style="font-weight:500">${esc(e.name)}</b><small>Stand ${CELLS[e.cell].num} · ${e.ind}</small></span></button>`),
+    ...fa.map(f => `<button data-act="mapPick" data-f="${f.id}"><div class="lg" style="background:${FTYPES[f.t].c};font-size:16px">${f.t === 'gate' ? '🚪' : FTYPES[f.t].em === 'i' ? 'ℹ️' : FTYPES[f.t].em === 'P' ? '🅿️' : FTYPES[f.t].em}</div><span><b style="font-weight:500">${esc(f.n)}</b><small>${esc(f.s)}</small></span></button>`)].join('')
+    || '<div style="padding:12px;color:#6a7a70;font-size:13px">No matches</div>';
+}
+AFTER.map = arg => {
+  const w = document.getElementById('mapWrap'), M = S.map;
+  const fit = w.clientWidth / 1400;
+  if (M.sel) { const [x, y] = selPoint(); mapCenter(x, y, .8); }
+  else { M.scale = arg === 'l:park' ? fit : fit * 1.9; M.panX = 0; M.panY = -(arg === 'l:park' ? 0 : 560 * M.scale); mapApply(); }
+  mapPins(); mapResults();
+  let drag = null;
+  const k = () => w.getBoundingClientRect().width / w.offsetWidth; // the phone frame may be scaled to fit the window
+  w.addEventListener('pointerdown', ev => {
+    if (ev.target.closest('.mtop,.mctl,.mlayers,.mpop')) return;
+    drag = {x: ev.clientX, y: ev.clientY, px: M.panX, py: M.panY, moved: false, pin: ev.target.closest('[data-pin]')};
+    w.setPointerCapture(ev.pointerId);
+  });
+  w.addEventListener('pointermove', ev => {
+    if (!drag) return;
+    const dx = (ev.clientX - drag.x) / k(), dy = (ev.clientY - drag.y) / k();
+    if (Math.hypot(dx, dy) > 5) { drag.moved = true; w.classList.add('drag'); }
+    if (drag.moved) { M.panX = drag.px + dx; M.panY = drag.py + dy; mapApply(); }
+  });
+  w.addEventListener('pointerup', ev => {
+    if (!drag) return; w.classList.remove('drag');
+    const d = drag; drag = null;
+    if (d.moved) return;
+    if (d.pin) { M.sel = {f: d.pin.dataset.pin}; mapPins(); return; }
+    const r = w.getBoundingClientRect(), mx = ((ev.clientX - r.left) / k() - M.panX) / M.scale, my = ((ev.clientY - r.top) / k() - M.panY) / M.scale;
+    let best = null, bd = 16;
+    CELLS.forEach(c => { const dd = Math.hypot(c.x - mx, c.y - my); if (dd < bd) { bd = dd; best = c; } });
+    M.sel = best ? {c: best.id} : null; mapPins();
+  });
+  w.addEventListener('wheel', ev => { ev.preventDefault(); const r = w.getBoundingClientRect(); mapZoom(ev.deltaY < 0 ? 1.15 : .87, (ev.clientX - r.left) / k(), (ev.clientY - r.top) / k()); }, {passive: false});
+};
+
+/* ---------- agenda ---------- */
+VIEWS.agenda = () => {
+  const plan = S.agDay === 'plan';
+  let L = AGENDA.filter(a => plan ? A.plan.includes(a.id) : a.day === S.agDay);
+  if (S.agCat !== 'All') L = L.filter(a => a.cat === S.agCat);
+  L.sort((a, b) => a.day - b.day || a.start.localeCompare(b.start));
+  return `${hdr('Agenda', 'Ploughing, demos, livestock & main arena')}
+  <div class="days">${[1, 2, 3].map(d => `<button class="${S.agDay === d ? 'on' : ''}" data-act="agDay" data-d="${d}"><small>${DAY_LABEL[d].slice(0, 3)}</small><b>${20 + d}</b><small>Sept</small></button>`).join('')}
+    <button class="${plan ? 'on' : ''}" data-act="agDay" data-d="plan"><small>My</small><b>★ ${A.plan.length}</b><small>plan</small></button></div>
+  <div class="chips">${['All', ...Object.keys(AG_CATS)].map(c => `<button class="chip ${S.agCat === c ? 'on' : ''}" data-act="agCat" data-c="${c}">${c !== 'All' ? `<i style="width:9px;height:9px;border-radius:50%;background:${AG_CATS[c]}"></i>` : ''}${c}</button>`).join('')}</div>
+  ${L.length ? L.map(a => `<div class="ev" data-act="agOpen" data-id="${a.id}"><div class="tm">${a.start}<small>${a.end}</small></div><div class="bar" style="background:${AG_CATS[a.cat]}"></div>
+    <div class="tx"><b>${esc(a.title)}</b><small>📍 ${a.loc}${plan ? ` · ${DAY_LABEL[a.day].slice(0, 7)}` : ''}</small><span class="cat" style="background:${AG_CATS[a.cat]}26;color:${AG_CATS[a.cat]}">${a.cat}</span></div>
+    <button class="star ${A.plan.includes(a.id) ? 'on' : ''}" data-act="plan" data-id="${a.id}">${ic('star', 22)}</button></div>`).join('')
+    : `<div class="empty"><div class="big">📅</div>${plan ? 'Tap the star on any event to build your plan for the day.' : 'Nothing in this category today.'}</div>`}`;
+};
+
+/* ---------- news + alerts ---------- */
+function newsCard(n) {
+  return `<div class="nw"><div class="top"><div class="em" style="background:${NCOL[n.type]}26">${n.em}</div><div><span class="cat" style="margin:0;background:${NCOL[n.type]}26;color:${NCOL[n.type]}">${n.type === 'Sponsor' ? 'Offer' : n.type}</span><small style="margin-top:3px">${n.d}</small></div></div>
+    <h3>${esc(n.t)}</h3><p>${esc(n.b)}</p>${n.cta ? `<button class="cta" data-go="${n.cta[1]}">${n.cta[0]} ${ic('chev', 16)}</button>` : ''}</div>`;
+}
+VIEWS.news = () => `${hdr('News', 'Latest updates and announcements')}
+  <div class="chips">${['All', 'General', 'Traffic', 'Safety', 'Weather', 'Sponsor'].map(t => `<button class="chip ${S.newsType === t ? 'on' : ''}" data-act="newsType" data-t="${t}">${t === 'Sponsor' ? 'Offers' : t}</button>`).join('')}</div>
+  ${NEWS.filter(n => S.newsType === 'All' || n.type === S.newsType).map(newsCard).join('') || '<div class="empty"><div class="big">📰</div>No news in this category yet.</div>'}`;
+VIEWS.alerts = () => {
+  const st = NPC.get(), unread = !A.readNews;
+  return `${hdr('Notifications', 'Push alerts from the NPA')}
+  ${A.signedIn ? `<div class="sec">Exhibitor messages · Stand 268</div>${st.messages.map((m, i) => `<div class="nt ${i < (st.unread || 0) ? 'unread' : ''}"><div class="em" style="background:${m.c.length > 7 ? m.c : m.c}">${m.em}</div><div><b>${esc(m.t)}</b><p>${esc(m.b)}</p><small>${m.d}</small></div></div>`).join('')}` : ''}
+  <div class="sec">Show-day alerts (preview)</div>
+  ${SHOWDAY.map(n => `<div class="nt ${unread ? 'unread' : ''}"><div class="em" style="background:${n.c}26">${n.em}</div><div><b>${n.t}</b><p>${n.b}</p><small>${n.d}</small></div></div>`).join('')}
+  <div class="sec">Recent</div>
+  ${NEWS.slice(0, 4).map(n => `<div class="nt"><div class="em" style="background:${NCOL[n.type]}26">${n.em}</div><div><b>${esc(n.t)}</b><p>${esc(n.b)}</p><small>${n.d}</small></div></div>`).join('')}`;
+};
+AFTER.alerts = () => {
+  // opening the list marks everything read
+  setTimeout(() => { let ch = false; if (!A.readNews) { A.readNews = true; saveA(); ch = true; } const st = NPC.get(); if (A.signedIn && st.unread) { st.unread = 0; NPC.save(); ch = true; } if (ch) document.querySelectorAll('.dotn').forEach(d => d.remove()); }, 1500);
+};
+
+/* ---------- tickets ---------- */
+const cartTotal = () => TT.reduce((s, t) => s + (S.cart[t.id] || 0) * t.p, 0);
+const cartCount = () => TT.reduce((s, t) => s + (S.cart[t.id] || 0), 0);
+VIEWS.tickets = () => `${hdr('Admission Tickets', 'Early-bird prices — save 20% until 31 Oct')}
+  ${A.tickets.length ? `<div class="pc" data-go="#/mytickets" style="background:#123d24;border-color:#2b7a48"><div class="em">🎟️</div><div class="bd"><b>My tickets</b><small>${A.tickets.length} ticket${A.tickets.length > 1 ? 's' : ''} ready to scan</small></div>${ic('chev')}</div>` : ''}
+  <div class="sec">Choose your day</div>
+  <div class="days">${[1, 2, 3].map(d => `<button class="${S.day === d ? 'on' : ''}" data-act="tday" data-d="${d}"><small>${DAY_LABEL[d].slice(0, 3)}</small><b>${20 + d}</b><small>Sept</small></button>`).join('')}</div>
+  <div class="sec">Tickets</div>
+  ${TT.map(t => `<div class="tk"><div class="tx"><b>${t.n}</b><small>${t.all ? 'Tue 21 – Thu 23 Sept' : t.s}</small><div class="pr">${t.p ? eur(t.p) : 'Free'}${t.g > t.p ? `<s>${eur(t.g)} at the gate</s>` : ''}</div></div>
+    <div class="qty"><button data-act="qty" data-id="${t.id}" data-d="-1" ${S.cart[t.id] ? '' : 'disabled'}>−</button><span>${S.cart[t.id] || 0}</span><button data-act="qty" data-id="${t.id}" data-d="1">+</button></div></div>`).join('')}
+  <div class="cart"><div class="sum"><span class="muted">${cartCount()} item${cartCount() === 1 ? '' : 's'}</span><b>${eur(cartTotal())}</b></div><button class="btn btn-g" data-go="#/checkout" ${cartCount() ? '' : 'disabled'}>Continue</button></div>`;
+VIEWS.checkout = () => {
+  if (!cartCount()) return `${hdr('Checkout')}<div class="empty"><div class="big">🛒</div>Your basket is empty.<br><br><button class="btn btn-g" data-go="#/tickets">Choose tickets</button></div>`;
+  return `${hdr('Checkout', 'Tickets arrive in the app as QR codes')}
+  <div class="card" style="padding:6px 16px">${TT.filter(t => S.cart[t.id]).map(t => `<div class="kv"><span>${S.cart[t.id]} × ${t.n}</span>${t.p ? eur(t.p * S.cart[t.id]) : 'Free'}</div>`).join('')}
+    <div class="kv"><span>Day</span>${DAY_LABEL[S.day]}</div><div class="kv" style="font-weight:700;font-size:16px"><span style="color:var(--text)">Total</span>${eur(cartTotal())}</div></div>
+  <div style="padding:0 18px"><div class="fld"><label>Email for your receipt</label><input class="inp" id="coEmail" type="email" placeholder="you@example.ie"></div>
+    <button class="btn btn-k" data-act="pay" style="margin-bottom:10px"><span style="font-size:19px"></span> Pay</button>
+    <button class="btn btn-l" data-act="pay">Pay by card</button>
+    <p class="muted" style="font-size:12px;text-align:center;margin-top:14px">Prototype — no payment is taken.</p></div>`;
+};
+VIEWS.mytickets = () => `${hdr('My Tickets', 'Show the QR code at any pedestrian gate')}
+  ${A.tickets.length ? A.tickets.map((t, i) => `<div class="tix" data-act="tix" data-i="${i}"><div class="hd2"><b>${t.n}</b><span style="font-size:12.5px">${t.day}</span></div>
+    <div class="bd">${qr(t.id, 92)}<div><b>${t.id}</b><small>National Ploughing Championships 2027</small><small>Rathangan, Co. Kildare</small><small style="color:#1f7a41;font-weight:600;margin-top:4px">Tap to enlarge</small></div></div></div>`).join('')
+  : `<div class="empty"><div class="big">🎟️</div>No tickets yet.<br><br><button class="btn btn-g" data-go="#/tickets">Buy tickets</button></div>`}`;
+
+/* ---------- profile ---------- */
+VIEWS.profile = () => `${hdr('Profile', 'Signed in as a guest')}
+  <div class="card menu" style="padding:4px 14px">
+    ${[['#/mytickets', 'ticket', 'My tickets', `${A.tickets.length} ticket${A.tickets.length === 1 ? '' : 's'}`], ['#/directory', 'star', 'Saved exhibitors', `${A.saved.length} saved`, 'savedDir'], ['#/agenda', 'cal', 'My plan', `${A.plan.length} event${A.plan.length === 1 ? '' : 's'}`, 'planAg'],
+      [A.signedIn ? '#/portal' : '#/portal-login', 'brief', 'Exhibitor portal', A.signedIn ? 'Stand 268 · signed in' : 'For stand holders']]
+      .map(([h, i, t, s, act]) => `<div class="li" ${act ? `data-act="${act}"` : `data-go="${h}"`}><div class="ic">${ic(i)}</div><div class="tx"><b>${t}</b><small>${s}</small></div>${ic('chev')}</div>`).join('')}</div>
+  <div class="sec">Push notifications</div>
+  <div class="card" style="padding:2px 16px">${[['traffic', 'Traffic & parking', 'Car parks, routes and shuttle buses'], ['safety', 'Safety & weather', 'Always on during show days'], ['agenda', 'My plan reminders', '15 minutes before events you starred'], ['sponsor', 'Exhibitor offers', 'Competitions and stand offers']]
+    .map(([k, t, s]) => `<div class="tg"><div class="tx"><b style="font-weight:500">${t}</b><small>${s}</small></div><button class="sw ${A.prefs[k] ? 'on' : ''}" data-act="pref" data-k="${k}"></button></div>`).join('')}</div>
+  <div class="sec">About</div>
+  <div class="card" style="padding:4px 16px"><div class="kv"><span>Event</span>NPC 2027 · 21–23 Sept</div><div class="kv"><span>Venue</span>Rathangan, Co. Kildare</div><div class="kv"><span>App</span>Powered by DMC Consultancy</div></div>
+  <div style="padding:4px 18px"><button class="btn btn-l" data-act="resetApp">${ic('refresh', 18)}Reset app demo</button></div>`;
+
+/* ---------- exhibitor portal ---------- */
+const DOC_PILL = {'Approved': ['Approved', 'green'], 'In review': ['In review', 'blue'], 'Not submitted': ['Upload', 'orange'], 'Rejected': ['Rejected', 'red']};
+const ORD_PILL = {Submitted: 'blue', Invoiced: 'gold', Confirmed: 'green', Cancelled: 'red'};
+const PASS_PILL = {Pending: 'gold', Approved: 'blue', Issued: 'green', Rejected: 'red'};
+const portalHdr = sub => `<div class="hd"><button class="icb sm" data-act="back">${ic('back', 26)}</button><a class="brand" href="#/home">${BRAND(46)}</a>${topIcons()}</div>`;
+VIEWS['portal-login'] = () => `${hdr('Exhibitor Portal', 'Sign in with the email on your stand booking')}
+  <div style="padding:0 18px">
+    <div class="card" style="margin:0 0 18px;display:flex;gap:12px;align-items:center"><div style="font-size:30px">🚜</div><div style="font-size:13.5px;color:#d7e4dc;line-height:1.45">Order power and services, upload insurance & RAMS, and manage staff passes — all from your phone.</div></div>
+    <div class="fld"><label>Email</label><input class="inp" id="plEmail" type="email" value="sean@kilbridetractors.ie"></div>
+    <button class="btn btn-g" data-act="signIn">${ic('mail', 18)}Email me a sign-in link</button>
+    <p class="muted" style="font-size:12.5px;text-align:center;margin-top:14px;line-height:1.5">No password needed — we send a one-tap link.<br>Demo: signs straight in as Kilbride Tractors, Stand 268.</p></div>`;
+VIEWS.portal = () => {
+  const st = NPC.get(), c = LINK_CELL, bal = KT.price - st.paid;
+  const ds = NPC.DOC_META.map(m => (st.docs[m.id] || {}).status || 'Not submitted');
+  const appr = ds.filter(s => s === 'Approved').length, rej = ds.includes('Rejected'), miss = ds.filter(s => s === 'Not submitted').length;
+  const docPill = rej ? pill('Action needed', 'red') : miss ? pill(`${miss} to upload`, 'orange') : appr === ds.length ? pill('Completed', 'green') : pill('In review', 'blue');
+  const pend = st.staff.filter(p => p.status !== 'Issued').length;
+  const ordered = id => st.orders.find(o => o.product === PRODUCTS.find(p => p.id === id).name && o.status !== 'Cancelled');
+  return `${portalHdr()}
+  <div class="ttl"><h1>Exhibitor Portal</h1><p>Stand ${c.num} • ${esc(KT.name)}</p></div>
+  <div class="sec">Your stand</div>
+  <div class="pc" data-go="#/map/c:${c.id}"><div class="em">📍</div><div class="bd"><b>Stand ${c.num}</b><small>Block ${c.block} · Row ${c.row} · ${KT.size}<br>${ZMAP.mach.name}</small></div><div class="rt">${pill('View', 'blue')}${ic('chev', 26)}</div></div>
+  <div class="pc" data-act="payBal"><div class="em">💶</div><div class="bd"><b>Stand balance</b><small>${bal > 0 ? `${eur(st.paid)} paid of ${eur(KT.price)} · ${eur(bal)} due Wednesday 30 June 2027` : `${eur(KT.price)} paid in full — thank you`}</small></div><div class="rt">${bal > 0 ? pill('Pay now', 'orange') : pill('Paid', 'green')}${ic('chev', 26)}</div></div>
+  <div class="sec">Documents</div>
+  <div class="pc" data-go="#/portal-docs"><div class="em">🛡️</div><div class="bd"><b>Insurance, Safety & RAMS</b><small>${appr} of ${ds.length} approved · Deadline Saturday 31 July 2027</small></div><div class="rt">${docPill}${ic('chev', 26)}</div></div>
+  <div class="sec">Feedback</div>
+  <div class="pc" data-go="#/portal-feedback"><div class="em">📝</div><div class="bd"><b>Feedback</b><small>We want to hear your feedback so we can continue to improve.</small></div><div class="rt">${A.fb ? pill('Sent', 'green') : pill('Open', 'blue')}${ic('chev', 26)}</div></div>
+  <div class="sec">Order through NPC</div>
+  ${PRODUCTS.map(p => { const o = ordered(p.id); return `<div class="pc" data-act="order" data-id="${p.id}"><div class="em">${p.em}</div><div class="bd"><b>${p.name}</b><small>${p.sub} · Deadline ${longDate(p.by)} · ${p.opts.length > 1 ? 'From ' : ''}${eur(p.opts[0][1])}</small></div><div class="rt">${o ? pill(o.status === 'Confirmed' ? 'Ordered' : o.status, ORD_PILL[o.status]) : pill('Via NPC', 'blue')}${ic('chev', 26)}</div></div>`; }).join('')}
+  <div class="pc" data-go="#/portal-orders"><div class="em">🧾</div><div class="bd"><b>My Orders</b><small>${st.orders.length} order${st.orders.length === 1 ? '' : 's'} · ${eur(st.orders.filter(o => o.status !== 'Cancelled').reduce((s, o) => s + o.value, 0))}</small></div><div class="rt">${pill('View', 'blue')}${ic('chev', 26)}</div></div>
+  <div class="sec sm">Maps</div>
+  <div class="pc" data-go="#/map/l:park"><div class="em">🗺️</div><div class="bd"><b>Traffic Management Map</b><small>Traffic management map for the Championships</small></div><div class="rt">${pill('View', 'blue')}${ic('chev', 26)}</div></div>
+  <div class="sec">Passes and tickets</div>
+  <div class="pc" data-go="#/portal-passes"><div class="em">🎫</div><div class="bd"><b>Exhibitor Passes</b><small>Normal passes · Deadline 10 Sept · ${st.staff.length} requested</small></div><div class="rt">${pend ? pill(`${pend} pending`, 'gold') : pill('Completed', 'green')}${ic('chev', 26)}</div></div>`;
+};
+VIEWS['portal-docs'] = () => {
+  const st = NPC.get();
+  return `${hdr('Insurance & RAMS', 'Upload from your phone — the NPA reviews within 2 working days')}
+  ${NPC.DOC_META.map(m => { const d = st.docs[m.id] || {status: 'Not submitted'}, [t, c] = DOC_PILL[d.status] || DOC_PILL['Not submitted'];
+    return `<div class="doc"><div class="top"><div class="tx"><b>${m.name}</b><small>${m.desc}</small><small style="margin-top:6px">Due ${m.due}</small></div>${pill(t, c)}</div>
+      ${d.file ? `<div class="file">${ic('file', 16)}<span>${esc(d.file)}</span><span style="margin-left:auto;flex:none;color:var(--dim)">${d.up || ''}</span></div>` : ''}
+      ${d.status === 'Rejected' ? `<div class="warn"><b style="display:inline">NPA note:</b> ${esc(d.note || 'Please upload a corrected document.')}</div>` : ''}
+      ${d.status === 'Not submitted' || d.status === 'Rejected' ? `<button class="btn ${d.status === 'Rejected' ? 'btn-o' : 'btn-g'}" data-act="upload" data-id="${m.id}">${ic('upload', 17)}${d.status === 'Rejected' ? 'Upload a new version' : 'Upload or take a photo'}</button>` : ''}</div>`; }).join('')}`;
+};
+VIEWS['portal-passes'] = () => {
+  const st = NPC.get(), n = s => st.staff.filter(p => p.status === s).length;
+  return `${hdr('Exhibitor Passes', `Stand 268 · ${st.staff.length} staff · deadline 10 Sept 2027`)}
+  <div class="stats"><div><b>${n('Issued')}</b><small>Issued</small></div><div><b>${n('Pending') + n('Approved')}</b><small>Pending</small></div><div><b>${Math.max(0, 8 - st.staff.length)}</b><small>Left of 8</small></div></div>
+  <div style="padding:0 18px 14px"><button class="btn btn-g" data-act="addPass" ${st.staff.length >= 8 ? 'disabled' : ''}>${ic('plus', 18)}Request a pass</button></div>
+  ${st.staff.map((p, i) => `<div class="li" data-act="passQr" data-i="${i}"><div class="lg" style="background:#2c4a38">${initials(p.name)}</div><div class="tx"><b>${esc(p.name)}</b><small>${esc(p.role)} · ${esc(p.email)}</small></div>${pill(p.status, PASS_PILL[p.status] || 'grey')}</div>`).join('')}
+  <p class="muted" style="font-size:12.5px;padding:14px 18px;line-height:1.5">Issued passes appear here as QR codes. The NPA approves each request in the admin dashboard.</p>`;
+};
+VIEWS['portal-orders'] = () => {
+  const st = NPC.get();
+  return `${hdr('My Orders', 'Receipts are emailed to sean@kilbridetractors.ie')}
+  ${st.orders.length ? st.orders.map(o => `<div class="doc"><div class="top"><div class="tx"><b>${esc(o.product)}</b><small>${esc(o.detail)}${o.qty > 1 ? ` × ${o.qty}` : ''}</small><small style="margin-top:6px">${o.id} · ${o.date}</small></div><div style="text-align:right">${pill(o.status, ORD_PILL[o.status] || 'grey')}<div style="font-weight:700;font-size:16px;margin-top:8px">${eur(o.value)}</div></div></div></div>`).join('')
+  : '<div class="empty"><div class="big">🧾</div>No orders yet.</div>'}
+  <div style="padding:6px 18px"><button class="btn btn-l" data-go="#/portal">${ic('plus', 18)}Order another service</button></div>`;
+};
+VIEWS['portal-feedback'] = () => A.fb
+  ? `${hdr('Feedback')}<div class="empty"><div class="big">🙏</div><b style="color:var(--text);font-size:17px">Thank you!</b><br>Your feedback has been sent to the NPA team.</div>`
+  : `${hdr('Feedback', 'We want to hear your feedback so we can continue to improve.')}
+  <div class="card">${[['overall', 'Overall experience'], ['org', 'NPA organisation & support'], ['site', 'Site, access & facilities']].map(([k, l]) => `<div style="padding:8px 0"><div style="font-size:14px;margin-bottom:6px">${l}</div><div class="stars">${[1, 2, 3, 4, 5].map(n => `<button class="${S.fb[k] >= n ? 'on' : ''}" data-act="fbStar" data-k="${k}" data-n="${n}">${ic('star', 30)}</button>`).join('')}</div></div>`).join('')}</div>
+  <div style="padding:0 18px"><div class="fld"><label>Anything we could do better?</label><textarea class="inp" id="fbTxt" placeholder="Set-up times, parking, stand location…"></textarea></div>
+    <button class="btn btn-g" data-act="fbSend">Send feedback</button></div>`;
+const PORTAL_ONLY = ['portal', 'portal-docs', 'portal-passes', 'portal-orders', 'portal-feedback'];
+
+/* ============================================================
+   Render + actions
+   ============================================================ */
+function render(keep) {
+  const {name, arg} = parseRoute();
+  if (PORTAL_ONLY.includes(name) && !A.signedIn) { location.replace('#/portal-login'); return; }
+  if (name === 'portal-login' && A.signedIn) { location.replace('#/portal'); return; }
+  if (name === 'map' && !keep) {
+    S.map = {scale: 1, panX: 0, panY: 0, layers: new Set(arg === 'l:park' ? ['park', 'gate'] : ['food', 'wc', 'aid']), sel: null};
+    if (arg.startsWith('c:')) S.map.sel = {c: +arg.slice(2)};
+    if (arg.startsWith('f:')) { S.map.sel = {f: arg.slice(2)}; S.map.layers.add(facById(arg.slice(2)).t); }
+    S.mq = '';
+  }
+  const v = document.getElementById('view'), top = v.scrollTop;
+  if (name === 'map' && keep) { mapPins(); return; }
+  v.className = name === 'map' ? 'fixed' : '';
+  document.getElementById('screen').scrollTop = 0;
+  v.innerHTML = (VIEWS[name] || VIEWS.home)(arg);
+  v.scrollTop = keep ? top : 0;
+  AFTER[name]?.(arg);
+  document.querySelectorAll('#screens .scr').forEach(b => b.classList.toggle('on', b.dataset.go === '#/' + name || b.dataset.go === location.hash));
+}
+const ACT = {
+  back: () => { if (STACK.length > 1) history.back(); else location.hash = '#/' + (PARENT[parseRoute().name] || 'home'); },
+  save: d => { const id = +d.id; A.saved = A.saved.includes(id) ? A.saved.filter(x => x !== id) : [...A.saved, id]; saveA(); toast(A.saved.includes(id) ? 'Saved to your exhibitors' : 'Removed from saved'); render(true); },
+  more: () => { S.dirLimit += 40; document.getElementById('dirList').innerHTML = dirList(); },
+  dirZone: d => { S.dirZone = d.k; S.dirLimit = 40; render(); },
+  savedDir: () => { S.dirZone = 'saved'; S.dirQ = ''; location.hash = '#/directory'; },
+  planAg: () => { S.agDay = 'plan'; S.agCat = 'All'; location.hash = '#/agenda'; },
+  ext: d => toast(d.m),
+  agDay: d => { S.agDay = d.d === 'plan' ? 'plan' : +d.d; render(); },
+  agCat: d => { S.agCat = d.c; render(true); },
+  plan: d => { const id = +d.id; A.plan = A.plan.includes(id) ? A.plan.filter(x => x !== id) : [...A.plan, id]; saveA(); toast(A.plan.includes(id) ? 'Added to My plan — we’ll remind you 15 min before' : 'Removed from My plan'); render(true); },
+  agOpen: d => {
+    const a = AGENDA.find(x => x.id === +d.id), on = A.plan.includes(a.id);
+    sheet(`<span class="cat" style="margin:0 0 10px;background:${AG_CATS[a.cat]}26;color:${AG_CATS[a.cat]}">${a.cat}</span><h2>${esc(a.title)}</h2><p class="sub">${a.who}</p>
+      <div class="card" style="margin:0 0 16px;padding:4px 16px"><div class="kv"><span>When</span>${DAY_LABEL[a.day]}</div><div class="kv"><span>Time</span>${a.start} – ${a.end}</div><div class="kv"><span>Where</span>${a.loc}</div></div>
+      <div class="btns"><button class="btn btn-l" data-act="plan" data-id="${a.id}">${ic('star', 18)}${on ? 'In my plan' : 'Add to plan'}</button><button class="btn btn-g" data-go="#/map/f:${AG_LOC[a.loc] || 'arena'}">${ic('pin', 18)}Show on map</button></div>`);
+  },
+  newsType: d => { S.newsType = d.t; render(true); },
+  layer: d => { const L = S.map.layers; L.has(d.k) ? L.delete(d.k) : L.add(d.k); if (d.k === 'park') L.has('park') ? L.add('gate') : L.delete('gate'); document.querySelectorAll('.mlayers .chip').forEach(c => c.classList.toggle('on', L.has(c.dataset.k))); mapPins(); },
+  zoom: d => mapZoom(+d.d),
+  locate: () => { mapCenter(YOU.x, YOU.y, Math.max(S.map.scale, .7)); mapPins(); toast(`You are here — ${YOU.n}`); },
+  unsel: () => { S.map.sel = null; mapPins(); },
+  mapPick: d => { S.mq = ''; document.getElementById('mapQ').value = ''; mapResults();
+    if (d.c != null) S.map.sel = {c: +d.c}; else { S.map.sel = {f: d.f}; S.map.layers.add(facById(d.f).t); }
+    const [x, y] = selPoint(); mapCenter(x, y, .8); mapPins(); },
+  tday: d => { S.day = +d.d; render(true); },
+  qty: d => { S.cart[d.id] = Math.max(0, Math.min(10, (S.cart[d.id] || 0) + +d.d)); render(true); },
+  pay: () => {
+    sheet(`<div style="text-align:center;padding:10px 0 20px"><div class="spin"></div><h2>Processing payment…</h2><p class="sub">${eur(cartTotal())}</p></div>`);
+    setTimeout(() => {
+      TT.forEach(t => { for (let i = 0; i < (S.cart[t.id] || 0); i++) A.tickets.push({id: 'NPC27-' + Math.floor(100000 + Math.random() * 899999), n: t.n, day: t.all ? 'All 3 days' : DAY_LABEL[S.day].replace(' 2027', '')}); });
+      saveA(); S.cart = {};
+      sheet(`<div style="text-align:center;padding:6px 0 4px"><div style="font-size:52px">✅</div><h2>You’re all set!</h2><p class="sub">Your tickets are saved in the app. A receipt has been emailed to you.</p><button class="btn btn-g" data-act="toTickets">View my tickets</button></div>`);
+    }, 1300);
+  },
+  toTickets: () => { closeSheet(); location.hash = '#/mytickets'; },
+  tix: d => { const t = A.tickets[+d.i]; sheet(`<div style="text-align:center"><h2>${t.n}</h2><p class="sub">${t.day} · ${t.id}</p><div class="qrbig">${qr(t.id, 250)}</div><p class="muted" style="font-size:13px">Turn up your screen brightness and hold the code to the scanner at any pedestrian gate.</p></div>`); },
+  pref: d => { A.prefs[d.k] = !A.prefs[d.k]; saveA(); render(true); },
+  resetApp: () => { A = JSON.parse(JSON.stringify(ADEF)); saveA(); S.cart = {}; toast('App demo reset'); render(); },
+  signIn: () => {
+    sheet(`<div style="text-align:center;padding:6px 0"><div style="font-size:48px">📬</div><h2>Check your email</h2><p class="sub">We sent a sign-in link to <b style="color:var(--text)">${esc(document.getElementById('plEmail').value)}</b>.</p><button class="btn btn-g" data-act="signedIn">Open link (demo)</button></div>`);
+  },
+  signedIn: () => { A.signedIn = true; saveA(); closeSheet(); toast(`Welcome back, Seán — Stand 268`); location.hash = '#/portal'; },
+  signOut: () => { A.signedIn = false; saveA(); location.hash = '#/home'; },
+  payBal: () => {
+    const st = NPC.get(), bal = KT.price - st.paid;
+    if (bal <= 0) { toast('Your stand is paid in full'); return; }
+    sheet(`<h2>Pay stand balance</h2><p class="sub">Stand 268 · invoice 000268</p><div class="card" style="margin:0 0 16px;padding:4px 16px"><div class="kv"><span>Stand (${KT.size})</span>${eur(KT.price)}</div><div class="kv"><span>Paid so far</span>−${eur(st.paid)}</div><div class="kv" style="font-weight:700"><span style="color:var(--text)">Balance due</span>${eur(bal)}</div></div>
+      <button class="btn btn-k" data-act="payBalGo" style="margin-bottom:10px"><span style="font-size:19px"></span> Pay ${eur(bal)}</button><button class="btn btn-l" data-act="payBalGo">Pay by card</button><p class="muted" style="font-size:12px;text-align:center;margin-top:12px">Prototype — no payment is taken.</p>`);
+  },
+  payBalGo: () => { const st = NPC.get(); st.paid = KT.price; NPC.save(); closeSheet(); toast('Payment received — receipt emailed. The NPA can see it now.'); render(true); },
+  order: d => { S.ordFor = d.id; S.ordOpt = 0; S.ordQty = 1; orderSheet(); },
+  ordOpt: d => { S.ordOpt = +d.i; orderSheet(); },
+  ordQty: d => { S.ordQty = Math.max(1, Math.min(20, S.ordQty + +d.d)); orderSheet(); },
+  ordGo: () => {
+    const p = PRODUCTS.find(x => x.id === S.ordFor), o = p.opts[S.ordOpt], st = NPC.get(), qty = p.qty ? S.ordQty : 1;
+    st.orders.unshift({id: 'NPC-' + (30600 + st.orders.length * 17), product: p.name, detail: o[0], qty, value: o[1] * qty, date: NPC.today(), iso: new Date().toISOString().slice(0, 10), status: 'Submitted'});
+    NPC.save(); closeSheet(); toast(`${p.name} ordered — the NPA will confirm it`); render(true);
+  },
+  upload: d => { const f = document.getElementById('fileIn'); f.dataset.doc = d.id; f.value = ''; f.click(); },
+  addPass: () => sheet(`<h2>Request a pass</h2><p class="sub">The NPA approves each pass. Issued passes appear here as QR codes.</p>
+    <div class="fld"><label>Full name</label><input class="inp" id="psName" placeholder="e.g. Niamh Kelly"></div><div class="fld"><label>Email</label><input class="inp" id="psEmail" type="email" placeholder="name@company.ie"></div>
+    <div class="fld"><label>Role</label><select class="inp" id="psRole"><option>Sales</option><option>Stand manager</option><option>Set-up crew</option><option>Demonstrator</option></select></div>
+    <button class="btn btn-g" data-act="addPassGo">Send request</button>`),
+  addPassGo: () => {
+    const n = document.getElementById('psName').value.trim(); if (!n) { toast('Please enter a name'); return; }
+    const st = NPC.get(); st.staff.push({name: n, email: document.getElementById('psEmail').value.trim() || '—', role: document.getElementById('psRole').value, status: 'Pending'});
+    NPC.save(); closeSheet(); toast(`Pass requested for ${esc(n)}`); render(true);
+  },
+  passQr: d => { const p = NPC.get().staff[+d.i];
+    sheet(p.status === 'Issued' ? `<div style="text-align:center"><h2>${esc(p.name)}</h2><p class="sub">${esc(p.role)} · Kilbride Tractors · Stand 268</p><div class="qrbig">${qr(p.email + p.name, 240)}</div><p class="muted" style="font-size:13px">Exhibitor pass · valid 18–25 Sept 2027 · scan at Gate G1A or G10A</p></div>`
+      : `<div style="text-align:center;padding:6px 0"><div style="font-size:46px">⏳</div><h2>${esc(p.name)}</h2><p class="sub">This pass is <b style="color:var(--text)">${p.status.toLowerCase()}</b>. Its QR code appears here once the NPA issues it.</p></div>`); },
+  fbStar: d => { S.fb[d.k] = +d.n; render(true); },
+  fbSend: () => { if (!S.fb.overall) { toast('Please rate your overall experience'); return; } A.fb = {...S.fb, txt: document.getElementById('fbTxt').value}; saveA(); toast('Thanks — feedback sent to the NPA'); render(); },
+};
+function orderSheet() {
+  const p = PRODUCTS.find(x => x.id === S.ordFor), qty = p.qty ? S.ordQty : 1;
+  sheet(`<div style="display:flex;gap:12px;align-items:center;margin-bottom:6px"><div style="font-size:30px">${p.em}</div><div><h2>${p.name}</h2><p class="sub" style="margin:0">Order by ${longDate(p.by)}</p></div></div><div style="height:14px"></div>
+    ${p.opts.map((o, i) => `<div class="opt ${S.ordOpt === i ? 'on' : ''}" data-act="ordOpt" data-i="${i}"><div class="rd"></div><span>${o[0]}</span><b>${eur(o[1])}</b></div>`).join('')}
+    ${p.qty ? `<div style="display:flex;justify-content:space-between;align-items:center;margin:14px 0 4px"><span>Quantity</span><div class="qty"><button data-act="ordQty" data-d="-1">−</button><span>${S.ordQty}</span><button data-act="ordQty" data-d="1">+</button></div></div>` : ''}
+    <div style="display:flex;justify-content:space-between;align-items:baseline;margin:16px 0 14px"><span class="muted">Total (invoiced to your account)</span><b style="font-size:22px">${eur(p.opts[S.ordOpt][1] * qty)}</b></div>
+    <button class="btn btn-g" data-act="ordGo">Place order</button>`);
+}
+document.getElementById('fileIn').addEventListener('change', ev => {
+  const f = ev.target.files[0]; if (!f) return;
+  const st = NPC.get(), id = ev.target.dataset.doc;
+  st.docs[id] = {status: 'In review', file: f.name, up: NPC.today()}; NPC.save();
+  toast(`${NPC.DOC_META.find(m => m.id === id).name} uploaded — sent to the NPA for review`); render(true);
+});
+document.addEventListener('click', ev => {
+  if (ev.target.id === 'scrim') { closeSheet(); return; }
+  const a = ev.target.closest('[data-act]');
+  if (a && !a.closest('#mapWrap .mapwrap > #mapIn')) { ev.preventDefault(); ACT[a.dataset.act]?.(a.dataset); return; }
+  const g = ev.target.closest('[data-go]');
+  if (g) { ev.preventDefault(); closeSheet(); if (location.hash === g.dataset.go) render(); else location.hash = g.dataset.go; }
+});
+document.addEventListener('input', ev => {
+  const q = ev.target.dataset?.q;
+  if (q === 'dir') { S.dirQ = ev.target.value; S.dirLimit = 40; document.getElementById('dirList').innerHTML = dirList(); }
+  if (q === 'map') { S.mq = ev.target.value; mapResults(); }
+});
+
+/* live link with the admin dashboard and web portal */
+NPC.onChange((b, a) => {
+  if (A.signedIn) {
+    NPC.DOC_META.forEach(m => { const x = (b.docs[m.id] || {}).status, y = (a.docs[m.id] || {}).status; if (x !== y && (y === 'Approved' || y === 'Rejected')) toast(`${m.name} ${y.toLowerCase()} by the NPA`); });
+    a.staff.forEach((p, i) => { const o = b.staff[i]; if (o && o.status !== p.status) toast(`Pass for ${esc(p.name)}: ${p.status}`); });
+    a.orders.forEach(o => { const x = b.orders.find(q => q.id === o.id); if (x && x.status !== o.status) toast(`Order ${o.id}: ${o.status}`); });
+    if (a.messages.length > b.messages.length) toast(`New message from the NPA: ${esc(a.messages[0].t)}`);
+  }
+  syncKT(); render(true);
+});
+
+/* side panel screen list */
+const SCREENS = [
+  ['Visitor app', [['#/home', 'Home'], ['#/directory', 'Exhibitor directory'], ['#/exhibitor/' + KT.id, 'Exhibitor profile'], ['#/map', 'Live site map'], ['#/map/c:' + LINK_CELL.id, 'Find a stand on the map'], ['#/agenda', 'Agenda'], ['#/news', 'News'], ['#/alerts', 'Notifications'], ['#/tickets', 'Admission tickets'], ['#/mytickets', 'My tickets (QR)'], ['#/profile', 'Profile & settings']]],
+  ['Exhibitor portal', [['#/portal-login', 'Sign in'], ['#/portal', 'Portal home'], ['#/portal-docs', 'Insurance & RAMS'], ['#/portal-orders', 'My orders'], ['#/portal-passes', 'Exhibitor passes'], ['#/map/l:park', 'Traffic management map'], ['#/portal-feedback', 'Feedback']]],
+];
+document.getElementById('screens').innerHTML = SCREENS.map(([g, L]) => `<div class="grp">${g}</div>` + L.map(([h, l], i) => `<button class="scr" data-go="${h}"><i>${String(i + 1).padStart(2, '0')}</i>${l}</button>`).join('')).join('');
+// portal screens need the demo exhibitor signed in when jumped to from the panel
+document.getElementById('screens').addEventListener('click', ev => { const b = ev.target.closest('[data-go]'); if (b && /portal-(?!login)|#\/portal$/.test(b.dataset.go) && !A.signedIn) { A.signedIn = true; saveA(); } }, true);
+
+function fitPhone() {
+  const p = document.getElementById('phone');
+  if (innerWidth <= 760) { p.style.transform = ''; return; }
+  const k = Math.min(1, (innerHeight - 40) / 860);
+  document.querySelector('.stage').style.height = innerHeight + 'px';
+  p.style.transform = k < 1 ? `scale(${k})` : ''; p.style.margin = k < 1 ? `${-(860 * (1 - k)) / 2}px ${-(402 * (1 - k)) / 2}px` : '';
+}
+addEventListener('resize', fitPhone); fitPhone();
+const tick = () => { document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-IE', {hour: '2-digit', minute: '2-digit'}); };
+tick(); setInterval(tick, 15000);
+STACK.push(location.hash || '#/home');
+render();
+</script>
+</body>
+</html>

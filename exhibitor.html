@@ -1,0 +1,628 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NPC Exhibitor Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Archivo+Narrow:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --side:#0d1f16; --side2:#132b1f; --bg:#f2f5f0; --card:#fff; --line:#e3e9e2; --ink:#10241a; --ink2:#3d5547; --muted:#6c8275;
+  --green:#2f9a57; --green-l:#e6f5ea; --gold:#e8b53a; --gold-d:#d39e20; --gold-l:#fdf5df; --orange:#f08a2c; --orange-l:#fff1e3;
+  --red:#d9473f; --red-l:#fde8e6; --blue:#2f7fc1; --blue-l:#e5f1fb; --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:Poppins,system-ui,sans-serif;font-size:14px;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.app{display:flex;min-height:100vh}
+
+/* sidebar */
+.sidebar{width:300px;flex:none;background:var(--side);color:#dfeae3;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden}
+.sidebar::before{content:"";position:absolute;width:260px;height:260px;border-radius:50%;background:#14301f;right:-90px;top:-80px}
+.brand{position:relative;padding:22px 22px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1b3426;text-decoration:none;color:inherit}
+.brand{flex-direction:column;align-items:flex-start;gap:8px}
+.brand .npclogo{display:block;height:74px;width:auto;background:#fff;border-radius:12px;padding:6px 10px}
+.brand .t1{font-family:"Archivo Narrow",sans-serif;font-weight:700;font-size:17px;color:#fff;line-height:1.05}
+.brand .t2{font-family:"Archivo Narrow",sans-serif;font-weight:700;font-size:17px;color:var(--gold);line-height:1.05}
+.brand .t3{font-size:10.5px;color:#9db7a7;margin-top:3px}
+.standcard{position:relative;margin:18px 16px 6px;border:1px solid #2c4a38;background:#132b1f;border-radius:12px;padding:16px;display:flex;gap:14px;align-items:center}
+.standcard .no{font-family:"Archivo Narrow",sans-serif;font-weight:700;font-size:34px;color:var(--gold);line-height:1}
+.standcard b{display:block;color:#fff;font-size:14px}
+.standcard small{color:#9db7a7;font-size:12px;line-height:1.5}
+.nav{flex:1;overflow-y:auto;padding:4px 12px 12px;position:relative}
+.nav-sec{font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:#6f8d7c;padding:18px 10px 8px}
+.nav a{display:flex;align-items:center;gap:13px;padding:11px 14px;border-radius:10px;text-decoration:none;color:#c8d9ce;font-size:15px;margin-bottom:2px;position:relative}
+.nav a:hover{background:#13291d;color:#fff}
+.nav a.on{background:#183424;color:var(--gold);font-weight:500}
+.nav a.on::before{content:"";position:absolute;left:-12px;top:10px;bottom:10px;width:4px;border-radius:0 4px 4px 0;background:var(--gold)}
+.nav a .cnt{margin-left:auto;background:var(--orange);color:#fff;font-size:11px;font-weight:600;border-radius:20px;min-width:20px;height:20px;display:grid;place-items:center;padding:0 6px}
+.nav a .cnt.g{background:var(--green)}
+.side-foot{border-top:1px solid #1b3426;padding:16px 18px;display:flex;align-items:center;gap:12px;position:relative}
+.side-foot .av{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#4cc276,#2f7fc1);display:grid;place-items:center;color:#fff;font-weight:700;font-size:13px}
+.side-foot b{display:block;color:#fff;font-size:14px}.side-foot small{color:#9db7a7;font-size:12px}
+.side-foot button{margin-left:auto;background:none;border:0;color:#e5534b;cursor:pointer;padding:6px}
+
+/* main */
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.top{background:#fff;border-bottom:1px solid var(--line);padding:16px 36px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+.top h1{margin:0;font-size:22px;font-weight:600}
+.top p{margin:2px 0 0;color:var(--ink2);font-size:13.5px}
+.top .acts{margin-left:auto;display:flex;gap:10px}
+.menu-btn{display:none;background:none;border:0;cursor:pointer;padding:4px}
+.view{padding:30px 36px 60px;max-width:1500px;width:100%}
+
+.btn{display:inline-flex;align-items:center;gap:8px;border:0;border-radius:9px;padding:10px 18px;font-weight:600;cursor:pointer;white-space:nowrap;text-decoration:none;font-size:14px}
+.btn svg.i{width:16px;height:16px}
+.btn-gold{background:var(--gold);color:#2a1d00}.btn-gold:hover{background:#f0c24e}
+.btn-out{background:#fff;color:var(--ink);border:1px solid #cfd9cf}.btn-out:hover{border-color:var(--ink2)}
+.btn-soft{background:var(--blue-l);color:var(--blue)}
+.btn-green{background:var(--green);color:#fff}
+.btn-ghost{background:#eef2ee;color:var(--ink2)}
+.btn-sm{padding:7px 13px;font-size:13px;border-radius:8px}
+.btn:disabled{opacity:.5;cursor:default}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius)}
+.card-h{display:flex;align-items:center;gap:12px;padding:20px 26px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.card-h h3{margin:0;font-size:18px;font-weight:600}
+.card-h p{margin:2px 0 0;color:var(--ink2);font-size:13px}
+.card-h .r{margin-left:auto;display:flex;gap:10px;align-items:center}
+.card-b{padding:22px 26px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-bottom:22px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.split{display:grid;grid-template-columns:1.75fr 1fr;gap:22px;align-items:start}
+
+/* hero */
+.hero{background:linear-gradient(110deg,#0f2a1b 0%,#1b4a2f 60%,#2a5c3b 100%);color:#fff;border-radius:var(--radius);padding:28px 34px;display:flex;align-items:center;gap:24px;margin-bottom:22px;position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;right:-60px;top:-80px;width:280px;height:280px;border-radius:50%;background:rgba(232,181,58,.08)}
+.hero h2{margin:0;color:var(--gold);font-size:22px;font-weight:700}
+.hero p{margin:6px 0 0;color:#cfe0d4;font-size:14px}
+.cd{margin-left:auto;display:flex;gap:10px;position:relative;z-index:1}
+.cd div{text-align:center}
+.cd b{display:grid;place-items:center;width:66px;height:56px;border-radius:10px;background:rgba(255,255,255,.1);font-size:28px;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.cd small{display:block;margin-top:6px;font-size:10.5px;letter-spacing:.14em;color:#9fc0aa}
+.progress-steps{display:flex;gap:6px;margin-top:16px;max-width:460px}
+.progress-steps i{flex:1;height:6px;border-radius:6px;background:rgba(255,255,255,.18)}
+.progress-steps i.on{background:#4cc276}.progress-steps i.half{background:var(--gold)}
+.steplbl{display:flex;gap:6px;max-width:460px;margin-top:6px}
+.steplbl span{flex:1;font-size:10.5px;color:#9fc0aa}
+
+.kpi{padding:22px 26px;display:flex;gap:12px;min-height:150px}
+.kpi .lb{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2);font-weight:500}
+.kpi .v{font-size:40px;font-weight:800;margin:6px 0 4px;letter-spacing:-.02em;line-height:1.1}
+.kpi .s{color:var(--ink2);font-size:13px}
+.kpi .ic{margin-left:auto;width:48px;height:48px;border-radius:12px;display:grid;place-items:center;flex:none}
+.ic-red{background:var(--red-l);color:var(--red)}.ic-gold{background:var(--gold-l);color:var(--gold-d)}.ic-green{background:var(--green-l);color:var(--green)}.ic-blue{background:var(--blue-l);color:var(--blue)}.ic-orange{background:var(--orange-l);color:var(--orange)}
+
+.row{display:flex;align-items:center;gap:16px;padding:16px 26px;border-top:1px solid var(--line)}
+.row:first-child{border-top:0}
+.row .dot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:none}
+.row .dot svg{width:15px;height:15px}
+.row b{display:block;font-weight:600;font-size:15px}
+.row small{color:var(--ink2);font-size:13px}
+.row .r{margin-left:auto;display:flex;gap:8px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 11px;border-radius:20px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.pill svg{width:13px;height:13px}
+.p-red{background:var(--red-l);color:var(--red)}.p-green{background:var(--green-l);color:var(--green)}.p-gold{background:var(--gold-l);color:#a87a0c}.p-blue{background:var(--blue-l);color:var(--blue)}.p-grey{background:#eef2ee;color:var(--ink2)}.p-orange{background:var(--orange-l);color:#c76612}
+.dl{display:flex;align-items:center;padding:15px 22px;border-top:1px solid var(--line);font-weight:500}
+.dl:first-child{border-top:0}
+.dl span{margin-left:auto;font-weight:600;color:var(--orange);font-size:13.5px}
+.dl span.done{color:var(--green)}
+.feed .it{display:flex;gap:12px;padding:14px 22px;border-top:1px solid var(--line)}
+.feed .it:first-child{border-top:0}
+.feed .em{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font-size:16px;flex:none}
+.feed b{display:block;font-size:14px}.feed p{margin:2px 0 0;color:var(--ink2);font-size:13px}.feed small{color:var(--muted);font-size:11.5px}
+
+/* checklist */
+.ck{padding:24px 26px;border-top:1px solid var(--line)}
+.ck:first-child{border-top:0}
+.deadline{border-radius:10px;padding:11px 16px;font-weight:600;font-size:14px;display:flex;gap:8px;align-items:center;margin-bottom:16px}
+.deadline.red{background:var(--red-l);color:#b4322b;border:1px solid #f4bdb8}
+.deadline.green{background:#e6f7ea;color:#1f7a41;border:1px solid #b9e4c5}
+.deadline.gold{background:var(--gold-l);color:#8f6608;border:1px solid #f0d995}
+.ck-h{display:flex;gap:16px;align-items:flex-start}
+.ck-h h4{margin:0;font-size:17px;font-weight:600}
+.ck-h p{margin:4px 0 0;color:var(--ink2)}
+.ck-h .pill{margin-left:auto}
+.drop{margin-top:16px;border:2px dashed #cfd9cf;border-radius:12px;padding:26px;text-align:center;cursor:pointer;color:var(--ink2);display:block}
+.drop:hover{border-color:var(--gold);background:#fffcf3}
+.drop b{display:block;color:var(--ink);font-size:15px;margin-top:8px}
+.drop small{color:var(--muted)}
+.drop input{display:none}
+.filebox{margin-top:16px;border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:14px;background:#fafcf9}
+.filebox .fi{width:40px;height:46px;border-radius:6px;background:var(--red-l);color:var(--red);display:grid;place-items:center;font-size:10px;font-weight:700}
+.filebox b{display:block;font-size:14px}.filebox small{color:var(--muted)}
+.filebox .r{margin-left:auto;display:flex;gap:8px}
+.bar{height:8px;background:#e7ece6;border-radius:8px;overflow:hidden;width:140px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#4cc276,var(--gold));border-radius:8px}
+.note{border-radius:12px;padding:14px 18px;font-size:13.5px;display:flex;gap:10px;align-items:flex-start;line-height:1.55}
+.note.gold{background:var(--gold-l);border:1px solid #f0d995;color:#6e5208}
+.note.blue{background:var(--blue-l);border:1px solid #bcdaf2;color:#1f5b8c}
+.note svg{margin-top:2px}
+
+/* tickets */
+.tix{display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px;margin-bottom:22px}
+.ticket{border-radius:16px;overflow:hidden;background:#fff;border:1px solid var(--line);display:flex;flex-direction:column}
+.ticket .tt{background:linear-gradient(135deg,#132b1f,#1f4a30);color:#fff;padding:22px 24px;position:relative}
+.ticket .tt::after{content:"";position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;background:rgba(232,181,58,.12)}
+.ticket .tag{font-size:11px;letter-spacing:.14em;font-weight:600;color:var(--gold);display:flex;gap:6px;align-items:center}
+.ticket h4{margin:8px 0 4px;font-size:21px;line-height:1.2}
+.ticket .it{color:#cfe0d4;font-style:italic;font-size:13px}
+.ticket .meta{display:flex;gap:22px;margin-top:16px}
+.ticket .meta small{display:block;font-size:10px;letter-spacing:.14em;color:#9fc0aa}
+.ticket .meta b{font-size:14px}
+.ticket .tb{padding:18px 24px;border-top:2px dashed var(--line);flex:1;display:flex;flex-direction:column;gap:12px}
+.ticket .tb .ln{display:flex;align-items:center;color:var(--ink2)}
+.ticket .tb .ln .pill{margin-left:auto}
+table.t{width:100%;border-collapse:collapse}
+.t th{background:#f6f8f5;color:var(--ink2);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;text-align:left;padding:13px 20px;border-bottom:1px solid var(--line)}
+.t td{padding:14px 20px;border-bottom:1px solid var(--line)}
+.t .muted{color:var(--muted)}
+.tabs{display:inline-flex;background:#eef2ee;border-radius:10px;padding:4px;gap:2px}
+.tabs button{border:0;background:none;padding:8px 16px;border-radius:8px;cursor:pointer;color:var(--ink2);font-weight:500}
+.tabs button.on{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08);font-weight:600}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+
+/* order cards */
+.ogrid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.ocard{border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;gap:16px;align-items:flex-start;cursor:pointer;background:#fff;text-align:left}
+.ocard:hover{border-color:var(--gold);box-shadow:0 4px 16px rgba(16,36,26,.07)}
+.ocard .oi{width:52px;height:52px;border-radius:12px;display:grid;place-items:center;font-size:24px;flex:none}
+.ocard b{display:block;font-size:16px}
+.ocard p{margin:3px 0 6px;color:var(--ink2);font-size:13.5px}
+.ocard .by{color:var(--orange);font-size:12.5px;font-weight:600;display:flex;gap:5px;align-items:center}
+.ocard .pr{margin-left:auto;font-weight:700;font-size:15px;white-space:nowrap}
+
+/* stand map */
+.standmap{border-radius:12px;overflow:hidden;border:1px solid var(--line);background:#fff;height:360px}
+.standmap svg{width:100%;height:100%;display:block}
+.kv{display:grid;grid-template-columns:1fr 1fr;gap:16px 24px}
+.kv div small{display:block;color:var(--muted);font-size:12px;margin-bottom:3px}
+.kv div b{font-weight:600}
+.pay{display:flex;gap:16px;align-items:center;padding:18px 0 0}
+.pay .big{font-size:28px;font-weight:800}
+
+/* vendor */
+.vgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.vcard{border:1px solid var(--line);border-radius:12px;padding:18px 20px}
+.vcard .cat{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--green);font-weight:600}
+.vcard b{display:block;font-size:16px;margin:6px 0 8px}
+.vcard div{color:var(--ink2);font-size:13px;display:flex;gap:8px;align-items:center;margin-top:5px}
+.vcard svg{width:14px;height:14px;color:var(--muted)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.chip{border:1px solid #cfd9cf;background:#fff;border-radius:20px;padding:6px 14px;cursor:pointer;font-size:13px;color:var(--ink2)}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* forms */
+.fld label{display:block;font-size:13px;color:var(--ink2);margin-bottom:7px;font-weight:500}
+.inp{width:100%;border:1px solid #cfd9cf;border-radius:9px;padding:11px 14px;background:#fff;outline:none}
+.inp:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(232,181,58,.2)}
+textarea.inp{min-height:100px;resize:vertical}
+select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%233d5547' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px 22px}
+.span2{grid-column:1/-1}
+.stars{display:flex;gap:4px}
+.stars button{background:none;border:0;font-size:26px;cursor:pointer;color:#d5dcd4;padding:0}
+.stars button.on{color:var(--gold)}
+.qty{display:inline-flex;align-items:center;border:1px solid #cfd9cf;border-radius:9px;overflow:hidden}
+.qty button{border:0;background:#f3f6f2;width:38px;height:40px;cursor:pointer;font-size:18px}
+.qty span{width:46px;text-align:center;font-weight:600}
+.opt{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:10px;padding:14px 16px;cursor:pointer;margin-bottom:10px}
+.opt.on{border-color:var(--gold);background:#fffcf3}
+.opt input{accent-color:var(--gold-d);width:17px;height:17px}
+.opt b{display:block}.opt small{color:var(--ink2)}
+.opt .pr{margin-left:auto;font-weight:700}
+
+
+/* modal/toast */
+.ov{position:fixed;inset:0;background:rgba(9,22,15,.55);display:none;align-items:flex-start;justify-content:center;padding:60px 16px;z-index:50;overflow-y:auto}
+.ov.show{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:560px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.modal .mh{display:flex;align-items:center;padding:18px 24px;border-bottom:1px solid var(--line)}
+.modal .mh h3{margin:0;font-size:18px}
+.modal .mh button{margin-left:auto;background:none;border:0;cursor:pointer;color:var(--muted);padding:4px}
+.modal .mb{padding:22px 24px}
+.modal .mf{display:flex;gap:10px;justify-content:flex-end;align-items:center;padding:16px 24px;border-top:1px solid var(--line)}
+.modal .mf .tot{margin-right:auto;font-size:15px}
+.toasts{position:fixed;right:22px;bottom:22px;display:flex;flex-direction:column;gap:10px;z-index:60}
+.toast{background:var(--ink);color:#fff;border-radius:10px;padding:12px 16px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px rgba(0,0,0,.25);animation:tin .25s ease;max-width:380px;font-size:13.5px}
+.toast svg{color:#4cc276}
+@keyframes tin{from{transform:translateY(10px);opacity:0}}
+.qr{width:150px;height:150px;margin:0 auto;display:block}
+
+@media (max-width:1250px){.split,.grid2{grid-template-columns:1fr}.tix,.vgrid{grid-template-columns:1fr 1fr}}
+@media (max-width:860px){
+  .sidebar{position:fixed;left:-310px;z-index:40;transition:.2s}.sidebar.open{left:0}
+  .menu-btn{display:block}
+  .top{padding:12px 16px;flex-wrap:wrap}.top .acts{width:100%;margin:0;flex-wrap:wrap}
+  .top .acts .btn{flex:1 1 auto;justify-content:center;padding:9px 12px;font-size:13px;white-space:normal}
+  .card-h .r{margin-left:0}.t{display:block;overflow-x:auto}
+  .split>*,.grid2>*{min-width:0}
+  .ck-h,.filebox,.pay,.tabs,.card-h .r{flex-wrap:wrap}.filebox b{word-break:break-all}.filebox .r{margin-left:0}
+  .deadline{font-size:13px}
+  .view{padding:18px 16px 50px}
+  .grid3,.tix,.vgrid,.ogrid,.fgrid,.kv{grid-template-columns:1fr}
+  .hero{flex-direction:column;align-items:flex-start;padding:22px}.cd{margin-left:0}
+  .cd b{width:56px;height:50px;font-size:22px}
+  .t th:nth-child(3),.t td:nth-child(3),.t th:nth-child(4),.t td:nth-child(4){display:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <a class="brand" href="#/overview">
+      <img class="npclogo" src="npc-logo.png" alt="National Ploughing Championships">
+      <div class="t3">Exhibitor Portal · 2027</div>
+    </a>
+    <div class="standcard"><div class="no" id="sNo"></div><div><b id="sName"></b><small id="sWhere"></small></div></div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="av" id="fAv"></div><div><b id="fStand"></b><small id="fName"></small></div><a href="admin.html" title="Open the admin dashboard" style="margin-left:auto;color:#9db7a7;font-size:11.5px;text-decoration:none;border:1px solid #2c4a38;border-radius:6px;padding:4px 8px">Admin view</a><button title="Log out" data-act="logout" style="margin-left:4px"><svg class="i" style="width:24px;height:24px"><use href="#i-refresh"/></svg></button></div>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <button class="menu-btn" data-act="menu"><svg class="i" style="width:24px;height:24px"><use href="#i-menu"/></svg></button>
+      <div><h1 id="tTitle"></h1><p id="tSub"></p></div>
+      <div class="acts" id="tActs"></div>
+    </header>
+    <main class="view" id="view"></main>
+  </div>
+</div>
+<div class="ov" id="ov"><div class="modal" id="modal"></div></div>
+<div class="toasts" id="toasts"></div>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
+  <symbol id="i-check-sq" viewBox="0 0 24 24"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M2 9a3 3 0 0 1 0 6v2a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-2a3 3 0 0 1 0-6V7a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M13 5v2M13 17v2M13 11v2"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-clip" viewBox="0 0 24 24"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-msg" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v1M14 20h1M17 17h4v4h-4"/></symbol>
+  <symbol id="i-euro" viewBox="0 0 24 24"><path d="M4 10h12M4 14h9"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12a7.9 7.9 0 0 0 7.8 8 7.7 7.7 0 0 0 5.2-2"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+</defs></svg>
+
+<script src="npc-link.js"></script>
+<script>
+/* ============================================================
+   Demo exhibitor — Kilbride Tractors Ltd, Stand 268 (Block 3 · Row 14)
+   ============================================================ */
+const icon = (n, s) => `<svg class="i"${s ? ` style="width:${s}px;height:${s}px"` : ''}><use href="#i-${n}"/></svg>`;
+const eur = n => '€' + n.toLocaleString('en-IE', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const EVENT_START = new Date('2027-09-21T09:00:00');
+
+const ME = {
+  company: 'Kilbride Tractors Ltd', stand: '268', block: 3, row: 14, zone: 'Machinery, ATVs & Plant', size: '12m × 12m',
+  contact: 'Seán Murphy', email: 'sean@kilbridetractors.ie', phone: '+353 87 412 6650', web: 'https://www.kilbridetractors.ie',
+  desc: 'Family-run tractor and machinery dealer since 1978 — new and used tractors, balers and tillage equipment, with full parts and service backup.',
+  price: 4200, paid: 1260, passes: 8, carPasses: 2, mapX: 644.5, mapY: 1122
+};
+
+const DOCS = NPC.DOC_META.map(m => ({...m}));
+const PRODUCTS = [
+  {id:'elec', name:'Electricity', sub:'Power supply to your stand', em:'⚡', c:'#fdf5df', by:'20 Aug', opts:[['16A single-phase', 185], ['32A single-phase', 290], ['32A three-phase', 420], ['63A three-phase', 760]]},
+  {id:'water', name:'Water Connection', sub:'Mains water to your stand', em:'💧', c:'#e5f1fb', by:'20 Aug', opts:[['Standard connection', 140], ['Connection + sink unit', 220]]},
+  {id:'wifi', name:'Stand WiFi', sub:'Dedicated connection for 3 days', em:'📶', c:'#efe8fb', by:'1 Sep', opts:[['Standard (up to 5 devices)', 95], ['Business (up to 20 devices)', 240]]},
+  {id:'tele', name:'Teleporter Booking', sub:'Machine and driver for set-up & break-down', em:'🏗️', c:'#e6f5ea', by:'1 Sep', opts:[['1 hour — set-up', 150], ['Half day — set-up', 480], ['1 hour — break-down', 150]]},
+  {id:'pass', name:'Extra Exhibitor Passes', sub:'Additional staff passes (QR in app)', em:'🎟️', c:'#fff1e3', by:'10 Sep', opts:[['Pack of 5 passes', 60]], qty:true},
+  {id:'car', name:'Exhibitor Car Park Pass', sub:'Reserved parking beside Block 3', em:'🚗', c:'#eef2ee', by:'10 Sep', opts:[['3-day pass', 45]], qty:true},
+  {id:'skip', name:'Waste Skip', sub:'Delivered to your stand on Monday', em:'♻️', c:'#e6f5ea', by:'1 Sep', opts:[['4 yard skip', 120], ['8 yard skip', 210]]},
+  {id:'furn', name:'Stand Furniture Pack', sub:'Table, 4 chairs, counter & brochure rack', em:'🪑', c:'#fdf5df', by:'1 Sep', opts:[['Standard pack', 230], ['Premium pack', 390]]},
+];
+let ORDERS = [], STAFF = [], MESSAGES = [];
+/* pull the linked state written by either page */
+function syncFromStore() {
+  const st = NPC.get();
+  DOCS.forEach(d => { const x = st.docs[d.id] || {}; d.status = x.status || 'Not submitted'; d.file = x.file; d.up = x.up; d.note = x.note; });
+  ORDERS = st.orders; STAFF = st.staff; MESSAGES = st.messages;
+  ME.paid = st.paid; S.setup = st.setup; Object.assign(ME, st.profile);
+}
+function persist() {
+  const st = NPC.get();
+  DOCS.forEach(d => { st.docs[d.id] = {status: d.status, file: d.file, up: d.up, note: d.note}; });
+  st.orders = ORDERS; st.staff = STAFF; st.paid = ME.paid; st.setup = !!S.setup;
+  st.profile = {company: ME.company, web: ME.web, phone: ME.phone, desc: ME.desc};
+  NPC.save();
+}
+const VENDORS = [
+  ['Furniture','Midland Event Hire','Tables, chairs, counters, display cabinets','057 862 1140','hire@midlandevents.ie'],
+  ['Furniture','Curragh Marquee & Furniture','Marquees, flooring and furniture packages','045 431 990','info@curraghmarquees.ie'],
+  ['Lighting','Barrow Lighting & Power','Stand lighting, floodlights and generators','059 913 4420','sales@barrowlighting.ie'],
+  ['Lighting','Liffey AV','Screens, PA systems and LED lighting','01 820 4471','events@liffeyav.ie'],
+  ['Flags & Banners','Shannon Flags','Feather flags, banners and bunting','061 300 812','orders@shannonflags.ie'],
+  ['Flags & Banners','Boyne Print & Display','Pop-up banners and fence-mesh printing','041 983 2200','print@boynedisplay.ie'],
+  ['Signage','Corrib Signs','Stand fascia boards and directional signage','091 774 302','hello@corribsigns.ie'],
+  ['Signage','Kells Vehicle Graphics','Vehicle wraps and machinery decals','046 924 118','studio@kellsgraphics.ie'],
+  ['Catering','Golden Vale Event Catering','Stand catering and hospitality for guests','062 610 77','book@goldenvalecatering.ie'],
+];
+const S = {ordTab: 'All', vendCat: 'All', fb: {overall: 0, org: 0, site: 0}, feedbackSent: false};
+
+/* ============================================================
+   Shell
+   ============================================================ */
+const NAV = [
+  ['My Stand', [['overview','Overview','grid'], ['stand','My Stand & Map','pin'], ['checklist','Checklist','check-sq'], ['passes','Passes & Tickets','ticket']]],
+  ['Orders', [['orders','My Orders','clip'], ['order','Place an Order','plus']]],
+  ['On the Day', [['messages','Messages','msg'], ['feedback','Feedback','star'], ['vendors','Vendor Directory','book'], ['settings','Settings','settings']]],
+];
+const done = () => DOCS.filter(d => d.status === 'Approved').length;
+const outstanding = () => DOCS.filter(d => d.status === 'Not submitted' || d.status === 'Rejected').length;
+function renderShell(r) {
+  const badges = {checklist: [outstanding(), ''], messages: [NPC.get().unread, 'g']};
+  document.getElementById('nav').innerHTML = NAV.map(([sec, items]) => `<div class="nav-sec">${sec}</div>` + items.map(([k, l, ic]) =>
+    `<a href="#/${k}" class="${r === k ? 'on' : ''}">${icon(ic, 19)}${l}${badges[k] && badges[k][0] ? `<span class="cnt ${badges[k][1]}">${badges[k][0]}</span>` : ''}</a>`).join('')).join('');
+  sNo.textContent = ME.stand; sName.textContent = ME.company; sWhere.textContent = `Rathangan · Block ${ME.block} · Row ${ME.row}`;
+  fAv.textContent = ME.stand; fStand.textContent = 'Stand ' + ME.stand; fName.textContent = ME.company;
+}
+const ACT = {
+  manual: `<button class="btn btn-out" data-act="manual">${icon('down')}Download Exhibitor Manual</button>`,
+  order: `<button class="btn btn-gold" data-go="order">${icon('plus')}Place an Order</button>`,
+};
+const route = () => (location.hash.replace(/^#\/?/, '') || 'overview');
+function render() {
+  const r = VIEWS[route()] ? route() : 'overview', V = VIEWS[r];
+  if (r === 'messages') NPC.get().unread = 0;
+  persist();
+  renderShell(r);
+  const [title, sub, acts] = V.head();
+  tTitle.textContent = title; tSub.textContent = sub; tActs.innerHTML = acts || '';
+  view.innerHTML = V();
+  document.title = `${title} · NPC Exhibitor Portal`;
+}
+window.addEventListener('hashchange', () => { document.getElementById('sidebar').classList.remove('open'); render(); window.scrollTo(0, 0); });
+
+function toast(msg) {
+  const t = document.createElement('div'); t.className = 'toast'; t.innerHTML = icon('check') + `<span>${msg}</span>`;
+  toasts.appendChild(t); setTimeout(() => t.remove(), 3600);
+}
+let onSave = null;
+function modal(title, body, foot, save) {
+  document.getElementById('modal').innerHTML = `<div class="mh"><h3>${title}</h3><button data-act="close">${icon('x')}</button></div><div class="mb">${body}</div>${foot ? `<div class="mf">${foot}</div>` : ''}`;
+  onSave = save; ov.classList.add('show');
+}
+const closeModal = () => { ov.classList.remove('show'); onSave = null; };
+const statusPill = s => {
+  const m = {'Approved':['green','check'], 'Complete':['green','check'], 'Confirmed':['green','check'], 'Issued':['green','check'], 'In review':['gold','clock'], 'Submitted':['blue','clock'], 'Invoiced':['orange','euro'], 'Not submitted':['red','alert'], 'Rejected':['red','x'], 'Pending':['gold','clock'], 'Cancelled':['grey','x']}[s] || ['grey', 'clock'];
+  return `<span class="pill p-${m[0]}">${icon(m[1])}${s}</span>`;
+};
+function countdown() {
+  let ms = Math.max(0, EVENT_START - new Date());
+  const d = Math.floor(ms / 864e5); ms -= d * 864e5; const h = Math.floor(ms / 36e5); ms -= h * 36e5; const m = Math.floor(ms / 6e4); const s = Math.floor((ms - m * 6e4) / 1000);
+  return [d, h, m, s];
+}
+setInterval(() => { const el = document.getElementById('cd'); if (el) { const v = countdown(); el.querySelectorAll('b').forEach((b, i) => b.textContent = String(v[i]).padStart(2, '0')); } }, 1000);
+
+/* ============================================================
+   Views
+   ============================================================ */
+const VIEWS = {};
+
+VIEWS.overview = () => {
+  const cd = countdown(), total = ORDERS.reduce((a, o) => a + o.value, 0);
+  const prog = [['Booked', 'on'], ['Deposit paid', 'on'], ['Listed in app', 'on'], ['Stand pinned', 'on'], ['Documents', done() === DOCS.length ? 'on' : 'half']];
+  return `<div class="hero"><div><h2>NPC 2027 — Rathangan, Co. Kildare</h2><p>21–23 September 2027 · Your stand is confirmed — Stand ${ME.stand}, Block ${ME.block}, Row ${ME.row}. Gates open in:</p>
+      <div class="progress-steps">${prog.map(p => `<i class="${p[1]}"></i>`).join('')}</div><div class="steplbl">${prog.map(p => `<span>${p[0]}</span>`).join('')}</div></div>
+    <div class="cd" id="cd">${['Days', 'Hours', 'Mins', 'Secs'].map((l, i) => `<div><b>${String(cd[i]).padStart(2, '0')}</b><small>${l.toUpperCase()}</small></div>`).join('')}</div></div>
+  <div class="grid3">
+    <div class="card kpi"><div><div class="lb">Checklist</div><div class="v">${done()} of ${DOCS.length}</div><div class="s">${outstanding()} documents still to upload</div></div><div class="ic ic-${outstanding() ? 'red' : 'green'}">${icon(outstanding() ? 'alert' : 'check', 22)}</div></div>
+    <div class="card kpi"><div><div class="lb">My Orders</div><div class="v">${ORDERS.length}</div><div class="s">${eur(total)} · ${[...new Set(ORDERS.map(o => o.product))].join(' · ') || 'No orders yet'}</div></div><div class="ic ic-blue">${icon('clip', 22)}</div></div>
+    <div class="card kpi"><div><div class="lb">Stand Balance</div><div class="v">${eur(ME.price - ME.paid).replace('.00', '')}</div><div class="s">${ME.price - ME.paid ? 'Due 30 June 2027' : 'Paid in full — thank you'}</div></div><div class="ic ic-gold">${icon('euro', 22)}</div></div>
+  </div>
+  <div class="split"><div class="card"><div class="card-h"><div><h3>My Checklist</h3><p>Required before the event</p></div><div class="r"><a class="btn btn-soft btn-sm" href="#/checklist">View all →</a></div></div>
+    ${DOCS.map(d => `<div class="row"><div class="dot ${d.status === 'Approved' ? 'ic-green' : d.status === 'In review' ? 'ic-gold' : 'ic-red'}">${icon(d.status === 'Approved' ? 'check' : d.status === 'In review' ? 'clock' : 'alert')}</div><div><b>${d.name}</b><small>${d.desc.split(/\.\s/)[0].replace(/\.$/, '')}</small></div><div class="r">${d.status === 'Approved' ? statusPill('Approved') : d.status === 'In review' ? statusPill('In review') : d.status === 'Rejected' ? statusPill('Rejected') : `<span class="pill p-red">${icon('clock')}Due ${d.due.replace(' 2027', '')}</span>`}</div></div>`).join('')}
+  </div>
+  <div style="display:flex;flex-direction:column;gap:22px">
+    <div class="card"><div class="card-h"><h3>Upcoming Deadlines</h3></div>
+      ${[['Directory listing details', '30 Apr 2027', true], ['Stand balance payment', '30 Jun 2027'], ['Insurance, Safety & RAMS', '31 Jul 2027'], ['Electricity & water orders', '20 Aug 2027'], ['Lifting certs (GA1–GA3)', '15 Aug 2027'], ['Staff pass names', '10 Sep 2027']].map(d => `<div class="dl">${d[0]}<span class="${d[2] ? 'done' : ''}">${d[2] ? '✓ Done' : d[1]}</span></div>`).join('')}</div>
+    <div class="card"><div class="card-h"><h3>My Recent Orders</h3><div class="r"><a class="btn btn-soft btn-sm" href="#/orders">All →</a></div></div>
+      ${ORDERS.slice(0, 3).map(o => `<div class="dl" style="font-weight:400"><div><b style="font-weight:600;display:block">${o.product}</b><small style="color:var(--muted)">${o.detail} · ${eur(o.value)}</small></div><span style="color:inherit">${statusPill(o.status)}</span></div>`).join('') || '<div class="empty">No orders yet.</div>'}</div>
+    <div class="card"><div class="card-h"><h3>Latest from the NPA</h3><div class="r"><a class="btn btn-soft btn-sm" href="#/messages">All →</a></div></div>
+      <div class="feed">${MESSAGES.slice(0, 2).map(m => `<div class="it"><div class="em" style="background:${m.c}">${m.em}</div><div><b>${m.t}</b><p>${m.b}</p><small>${m.d}</small></div></div>`).join('')}</div></div>
+  </div></div>`;
+};
+VIEWS.overview.head = () => ['Overview', 'NPC 2027 · 21–23 September · Rathangan, Co. Kildare', ACT.manual + ACT.order];
+
+VIEWS.stand = () => {
+  const bal = ME.price - ME.paid, w = 420, h = 300;
+  return `<div class="split"><div class="card"><div class="card-h"><div><h3>Your Stand on the Map</h3><p>This is exactly what visitors see when they tap “Navigate to stand” in the app</p></div></div>
+    <div class="card-b"><div class="standmap"><svg viewBox="${ME.mapX - w / 2} ${ME.mapY - h / 2} ${w} ${h}" preserveAspectRatio="xMidYMid slice"><image href="site-map-2026.jpg" width="1400" height="1979"/>
+      <g transform="translate(${ME.mapX},${ME.mapY})"><circle r="14" fill="none" stroke="#d9473f" stroke-width="2.5"><animate attributeName="r" values="6;22;6" dur="1.6s" repeatCount="indefinite"/><animate attributeName="opacity" values="1;.2;1" dur="1.6s" repeatCount="indefinite"/></circle><path d="M0 0 C -11 -14 -11 -29 0 -29 C 11 -29 11 -14 0 0Z" fill="#d9473f" stroke="#fff" stroke-width="2"/><circle cy="-19" r="4.5" fill="#fff"/></g></svg></div>
+    <p style="color:var(--muted);font-size:12.5px;margin:10px 0 0">Site plan shown is the current NPC map. Your pin moves automatically when the 2027 Rathangan plan is published.</p></div></div>
+  <div style="display:flex;flex-direction:column;gap:22px">
+    <div class="card"><div class="card-h"><h3>Stand Details</h3><div class="r">${statusPill('Confirmed')}</div></div><div class="card-b"><div class="kv">
+      <div><small>Stand number</small><b>${ME.stand}</b></div><div><small>Location</small><b>Block ${ME.block} · Row ${ME.row}</b></div>
+      <div><small>Zone</small><b>${ME.zone}</b></div><div><small>Stand size</small><b>${ME.size}</b></div>
+      <div><small>Exhibitor passes</small><b>${ME.passes} included</b></div><div><small>Car park passes</small><b>${ME.carPasses} included</b></div>
+      <div><small>Set-up</small><b>Sat 18 – Mon 20 Sept</b></div><div><small>Break-down</small><b>Thu 23 (after 6pm) – Sat 25</b></div></div></div></div>
+    <div class="card"><div class="card-h"><h3>Payments</h3></div><div class="card-b">
+      <div class="kv"><div><small>Stand total</small><b>${eur(ME.price)}</b></div><div><small>Deposit paid</small><b style="color:var(--green)">${eur(ME.paid)}</b></div></div>
+      <div class="pay"><div><small style="color:var(--muted)">Balance due 30 June 2027</small><div class="big">${eur(bal)}</div></div>${bal ? `<button class="btn btn-gold" data-act="payBalance" style="margin-left:auto">${icon('euro')}Pay balance</button>` : `<span class="pill p-green" style="margin-left:auto">${icon('check')}Paid in full</span>`}</div></div></div>
+    <div class="card"><div class="card-h"><h3>Directory Listing</h3><div class="r"><a class="btn btn-soft btn-sm" href="#/settings">Edit</a></div></div><div class="card-b">
+      <div style="display:flex;gap:14px;align-items:center"><div style="width:56px;height:56px;border-radius:12px;background:#2f9a57;color:#fff;display:grid;place-items:center;font-weight:700;font-size:18px">KT</div><div><b style="font-size:16px">${ME.company}</b><div style="color:var(--muted);font-size:13px">${ME.zone}</div></div></div>
+      <p style="color:var(--ink2);margin:12px 0 0;font-size:13.5px">${esc(ME.desc)}</p></div></div>
+  </div></div>`;
+};
+VIEWS.stand.head = () => ['My Stand & Map', `Stand ${ME.stand} · Block ${ME.block}, Row ${ME.row} · ${ME.size}`, ACT.order];
+
+VIEWS.checklist = () => `<div class="card"><div class="card-h"><div><h3>My Checklist</h3><p>All items required before the event</p></div><div class="r"><span style="color:var(--ink2)">${done()} of ${DOCS.length} complete</span><div class="bar"><i style="width:${done() / DOCS.length * 100}%"></i></div></div></div>
+  ${DOCS.map(d => { const ok = d.status === 'Approved', rev = d.status === 'In review'; return `<div class="ck">
+    <div class="deadline ${ok ? 'green' : rev ? 'gold' : 'red'}">${icon('clock')}${ok ? 'Approved by the NPA' : rev ? 'Submitted — the NPA is reviewing your document' : d.status === 'Rejected' ? 'Rejected by the NPA' + (d.note ? ' — ' + esc(d.note) : '') + '. Please upload a new version.' : 'Submission deadline: ' + d.due}</div>
+    <div class="ck-h"><div><h4>${d.name}</h4><p>${d.desc}</p></div>${statusPill(d.status)}</div>
+    ${d.file ? `<div class="filebox"><div class="fi">PDF</div><div><b>${esc(d.file)}</b><small>Uploaded ${d.up || NPC.today()}</small></div><div class="r"><button class="btn btn-ghost btn-sm" data-act="viewDoc" data-id="${d.id}">${icon('eye')}View</button>${ok ? '' : `<label class="btn btn-out btn-sm">${icon('up')}Replace<input type="file" hidden accept=".pdf,.jpg,.jpeg,.png" data-upload="${d.id}"></label>`}</div></div>`
+      : `<label class="drop">${icon('up', 26)}<b>Upload ${d.name}</b><small>PDF, JPG or PNG · Max 10MB</small><input type="file" accept=".pdf,.jpg,.jpeg,.png" data-upload="${d.id}"></label>`}
+  </div>`; }).join('')}</div>`;
+VIEWS.checklist.head = () => ['My Checklist', 'Required documents before the event', ACT.manual];
+
+VIEWS.passes = () => {
+  const used = STAFF.length;
+  return `<div class="tix">
+    <div class="ticket"><div class="tt"><div class="tag">${icon('ticket', 14)}EXHIBITOR PASS</div><h4>NPC 2027<br>Exhibitor Pass</h4><div class="it">Staff access — all three days</div>
+      <div class="meta"><div><small>DATES</small><b>21–23 Sept</b></div><div><small>VENUE</small><b>Rathangan</b></div><div><small>STAND</small><b>${ME.stand}</b></div></div></div>
+      <div class="tb"><div class="ln">Passes assigned<b style="margin-left:auto;color:var(--ink)">${used} of ${ME.passes}</b></div><div class="bar" style="width:100%"><i style="width:${used / ME.passes * 100}%"></i></div>
+      <div style="display:flex;gap:10px;margin-top:auto"><button class="btn btn-gold" data-act="addStaff" ${used >= ME.passes ? 'disabled' : ''}>${icon('plus')}Add staff</button><button class="btn btn-out" data-go="order">Buy more</button></div></div></div>
+    <div class="ticket"><div class="tt"><div class="tag">${icon('pin', 14)}VEHICLE PASS</div><h4>Exhibitor<br>Car Park</h4><div class="it">Reserved parking beside Block 3</div>
+      <div class="meta"><div><small>DATES</small><b>21–23 Sept</b></div><div><small>GATE</small><b>Gate 4</b></div><div><small>INCLUDED</small><b>${ME.carPasses}</b></div></div></div>
+      <div class="tb"><div class="ln">Status${statusPill('Issued')}</div><div class="ln">Registrations<b style="margin-left:auto;color:var(--ink)">10-KE-4471, 221-OY-90</b></div><div style="margin-top:auto"><button class="btn btn-out" data-act="showQR" data-n="Car park pass">${icon('qr')}View QR</button></div></div></div>
+    <div class="ticket"><div class="tt"><div class="tag">${icon('star', 14)}SET-UP ACCESS</div><h4>Set-up &amp;<br>Break-down</h4><div class="it">Machinery &amp; delivery vehicles</div>
+      <div class="meta"><div><small>SET-UP</small><b>18–20 Sept</b></div><div><small>BREAK-DOWN</small><b>23–25 Sept</b></div></div></div>
+      <div class="tb"><div class="ln">Status${S.setup ? statusPill('Pending') : '<span class="pill p-grey">Not requested</span>'}</div><div class="ln" style="font-size:13px">Low-loaders and machinery deliveries need a timed slot.</div><div style="margin-top:auto"><button class="btn btn-gold" data-act="setupSlot" ${S.setup ? 'disabled' : ''}>${icon('plus')}${S.setup ? 'Slot requested' : 'Request slot'}</button></div></div></div>
+  </div>
+  <div class="card" style="margin-bottom:22px"><div class="card-h"><div><h3>Staff Passes</h3><p>Requests are approved by the NPA, then each person receives a QR pass in the NPC app</p></div></div>
+  <table class="t"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Pass</th><th></th></tr></thead><tbody>
+    ${STAFF.map((p, i) => `<tr><td><b style="font-weight:600">${esc(p.name)}</b></td><td class="muted">${esc(p.email)}</td><td>${esc(p.role)}</td><td>${statusPill(p.status)}</td><td style="text-align:right;white-space:nowrap"><button class="btn btn-ghost btn-sm" data-act="showQR" data-n="${esc(p.name)}" ${p.status === 'Issued' ? '' : 'disabled title="Waiting for NPA approval"'}>${icon('qr')}QR</button> <button class="btn btn-ghost btn-sm" data-act="delStaff" data-i="${i}">${icon('trash')}</button></td></tr>`).join('')}
+  </tbody></table></div>
+  <div class="note gold">${icon('clock')}<div><b>Staff names must be added by 10 September 2027.</b> Passes are personal and scanned at the exhibitor gates. Extra passes can be ordered in packs of five.</div></div>`;
+};
+VIEWS.passes.head = () => ['Passes & Tickets', 'Manage exhibitor, vehicle and set-up passes for NPC 2027', ACT.manual + ACT.order];
+
+VIEWS.orders = () => {
+  const rows = ORDERS.filter(o => S.ordTab === 'All' || o.status === S.ordTab);
+  return `<div class="card"><div class="card-h"><div><h3>My Orders</h3><p>All orders placed through the NPC portal</p></div><div class="r"><button class="btn btn-soft btn-sm" data-go="order">+ Place New Order</button></div></div>
+  <div class="card-b" style="padding-bottom:14px"><div class="tabs">${['All', 'Submitted', 'Invoiced', 'Confirmed'].map(t => `<button class="${S.ordTab === t ? 'on' : ''}" data-act="ordTab" data-t="${t}">${t}</button>`).join('')}</div></div>
+  <table class="t"><thead><tr><th>Order ID</th><th>Type</th><th>Details</th><th>Submitted</th><th>Value</th><th>Status</th></tr></thead><tbody>
+    ${rows.map(o => `<tr><td><b style="font-weight:600">${o.id}</b></td><td>${o.product}</td><td class="muted">${o.detail}${o.qty > 1 ? ' × ' + o.qty : ''}</td><td class="muted">${o.date}</td><td><b style="font-weight:600">${eur(o.value)}</b></td><td>${statusPill(o.status)}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">No orders here yet.</td></tr>'}
+  </tbody></table>
+  <div class="card-b">Total ordered: <b>${eur(ORDERS.reduce((a, o) => a + o.value, 0))}</b></div></div>`;
+};
+VIEWS.orders.head = () => ['My Orders', 'Orders placed through the NPC portal', ACT.order];
+
+VIEWS.order = () => `<div class="card"><div class="card-h"><h3>Place an Order</h3><div class="r" style="color:var(--ink2)">Select what you need for Stand ${ME.stand}</div></div>
+  <div class="card-b"><div class="ogrid">${PRODUCTS.map(p => `<button class="ocard" data-act="orderModal" data-id="${p.id}"><div class="oi" style="background:${p.c}">${p.em}</div><div><b>${p.name}</b><p>${p.sub}</p><div class="by">${icon('clock', 13)}Order by ${p.by}</div></div><div class="pr">from €${p.opts[0][1]}</div></button>`).join('')}</div></div></div>
+  <div class="note blue" style="margin-top:22px">${icon('alert')}<div>Orders are paid by card at checkout and confirmed by the NPA operations team. Orders placed after the deadline carry a 25% late surcharge.</div></div>`;
+VIEWS.order.head = () => ['Place an Order', `Select what you need for Stand ${ME.stand}`];
+
+VIEWS.messages = () => `<div class="card"><div class="card-h"><div><h3>Messages from the NPA</h3><p>Updates, deadlines and emergency alerts — also sent as push notifications to the NPC app</p></div></div>
+  <div class="feed">${MESSAGES.map(m => `<div class="it" style="padding:18px 26px"><div class="em" style="background:${m.c}">${m.em}</div><div><b>${m.t}</b><p>${m.b}</p><small>${m.d}</small></div></div>`).join('')}</div></div>`;
+VIEWS.messages.head = () => ['Messages', 'Live communications from the National Ploughing Association'];
+
+VIEWS.feedback = () => {
+  const st = k => `<div class="stars">${[1, 2, 3, 4, 5].map(n => `<button class="${S.fb[k] >= n ? 'on' : ''}" data-act="star" data-k="${k}" data-n="${n}">★</button>`).join('')}</div>`;
+  return S.feedbackSent ? `<div class="card"><div class="empty" style="padding:60px"><div style="font-size:44px">🙏</div><h3 style="color:var(--ink)">Thank you for your feedback</h3><p>The NPA team reads every response — it shapes next year's Championships.</p><button class="btn btn-out" data-act="fbAgain">Send more feedback</button></div></div>`
+  : `<div class="card" style="max-width:860px"><div class="card-h"><div><h3>How was the Championships?</h3><p>Tell us what worked and what we can improve for 2028</p></div></div><div class="card-b"><div class="fgrid">
+    <div class="fld"><label>Overall experience</label>${st('overall')}</div><div class="fld"><label>Organisation & communication</label>${st('org')}</div>
+    <div class="fld"><label>Stand location & site facilities</label>${st('site')}</div>
+    <div class="fld"><label>Would you exhibit again in 2028?</label><select class="inp"><option>Yes — definitely</option><option>Probably</option><option>Not sure</option><option>No</option></select></div>
+    <div class="fld span2"><label>Comments</label><textarea class="inp" placeholder="What went well? What should we change?"></textarea></div>
+    <div class="span2"><button class="btn btn-gold" data-act="sendFb">${icon('check')}Submit feedback</button></div></div></div></div>`;
+};
+VIEWS.feedback.head = () => ['Feedback', 'Help us make the next Championships even better'];
+
+VIEWS.vendors = () => {
+  const cats = ['All', ...new Set(VENDORS.map(v => v[0]))];
+  const rows = VENDORS.filter(v => S.vendCat === 'All' || v[0] === S.vendCat);
+  return `<div class="card"><div class="card-h"><div><h3>Vendor Directory</h3><p>Source your own suppliers — furniture, lighting, flags, signage & catering</p></div><div class="r"><button class="btn btn-gold btn-sm" data-act="pdf">${icon('down')}Download PDF Directory</button></div></div>
+  <div class="card-b"><div class="chips">${cats.map(c => `<button class="chip ${S.vendCat === c ? 'on' : ''}" data-act="vcat" data-c="${c}">${c}</button>`).join('')}</div>
+  <div class="vgrid">${rows.map(v => `<div class="vcard"><div class="cat">${v[0]}</div><b>${v[1]}</b><div>${v[2]}</div><div>${icon('phone')}${v[3]}</div><div>${icon('mail')}${v[4]}</div></div>`).join('')}</div>
+  <div class="note gold" style="margin-top:20px">${icon('star')}<div>These suppliers are approved to work on the NPC site. Contact them directly and mention the National Ploughing Championships 2027.</div></div></div></div>`;
+};
+VIEWS.vendors.head = () => ['Vendor Directory', 'Source your own suppliers', `<button class="btn btn-gold" data-act="pdf">${icon('down')}Download PDF</button>`];
+
+VIEWS.settings = () => `<div class="grid2"><div class="card"><div class="card-h"><div><h3>Company Profile</h3><p>Shown in the NPC app directory</p></div></div><div class="card-b"><div class="fgrid">
+    <div class="fld span2"><label>Company name</label><input class="inp" id="pCompany" value="${esc(ME.company)}"></div>
+    <div class="fld"><label>Website</label><input class="inp" id="pWeb" value="${esc(ME.web)}"></div><div class="fld"><label>Phone</label><input class="inp" id="pPhone" value="${esc(ME.phone)}"></div>
+    <div class="fld span2"><label>Description</label><textarea class="inp" id="pDesc">${esc(ME.desc)}</textarea></div>
+    <div class="span2"><button class="btn btn-gold" data-act="saveProfile">${icon('check')}Save profile</button></div></div></div></div>
+  <div style="display:flex;flex-direction:column;gap:22px">
+    <div class="card"><div class="card-h"><h3>Main Contact</h3></div><div class="card-b"><div class="fgrid">
+      <div class="fld"><label>Name</label><input class="inp" value="${esc(ME.contact)}"></div><div class="fld"><label>Email</label><input class="inp" value="${esc(ME.email)}"></div>
+      <div class="span2"><button class="btn btn-out" data-act="toast" data-m="Contact details saved">Save contact</button></div></div></div></div>
+    <div class="card"><div class="card-h"><h3>Notifications</h3></div><div class="card-b">
+      ${['Deadline reminders by email', 'Push alerts in the NPC app', 'Order status updates', 'SMS for emergency alerts'].map(n => `<label class="opt on" style="cursor:default"><input type="checkbox" checked><b style="font-weight:500">${n}</b></label>`).join('')}</div></div>
+  </div></div>`;
+VIEWS.settings.head = () => ['Settings', 'Your company profile and portal preferences'];
+
+/* ============================================================
+   Actions
+   ============================================================ */
+const qrSvg = seed => { let s = 0; for (const c of seed) s = (s * 31 + c.charCodeAt(0)) >>> 0; let cells = ''; for (let y = 0; y < 21; y++) for (let x = 0; x < 21; x++) { const f = (x < 7 && y < 7) || (x > 13 && y < 7) || (x < 7 && y > 13); s = (s * 1103515245 + 12345) >>> 0; if (f ? (x % 6 === 0 || y % 6 === 0 || (x % 7 > 1 && x % 7 < 5 && y % 7 > 1 && y % 7 < 5)) && !((x === 1 || x === 5 || x === 15 || x === 19) && y % 7 > 0 && y % 7 < 6 && !(y % 7 === 1 || y % 7 === 5)) : (s >> 16) & 1) cells += `<rect x="${x}" y="${y}" width="1" height="1"/>`; } return `<svg class="qr" viewBox="-1 -1 23 23"><rect x="-1" y="-1" width="23" height="23" fill="#fff"/><g fill="#10241a">${cells}</g></svg>`; };
+const A = {
+  close: closeModal,
+  save: () => onSave && onSave(),
+  menu: () => document.getElementById('sidebar').classList.toggle('open'),
+  logout: () => toast('This is a prototype — logout is disabled'),
+  toast: d => toast(d.m),
+  manual: () => toast('NPC_Exhibitor_Manual_2027.pdf — download started'),
+  pdf: () => toast('NPC_2027_Supplier_Directory.pdf — download started'),
+  ordTab: d => { S.ordTab = d.t; render(); },
+  vcat: d => { S.vendCat = d.c; render(); },
+  viewDoc: d => { const doc = DOCS.find(x => x.id === d.id); modal(doc.name, `<div style="background:#f4f4f1;border-radius:10px;padding:26px;height:300px;font-size:12px;color:#333"><b style="font-size:14px">${esc(doc.file)}</b>${'<div style="height:8px;background:#ddd;border-radius:4px;margin:12px 0"></div>'.repeat(9)}</div>`, `<span style="margin-right:auto">${statusPill(doc.status)}</span><button class="btn btn-out" data-act="close">Close</button>`); },
+  orderModal: d => {
+    const p = PRODUCTS.find(x => x.id === d.id); S.sel = {p, opt: 0, qty: 1};
+    const draw = () => {
+      const {p, opt, qty} = S.sel, total = p.opts[opt][1] * qty;
+      modal(`${p.em} ${p.name}`, `<p style="margin-top:0;color:var(--ink2)">${p.sub} · Stand ${ME.stand}</p>
+        ${p.opts.map((o, i) => `<label class="opt ${opt === i ? 'on' : ''}" data-act="pickOpt" data-i="${i}"><input type="radio" name="o" ${opt === i ? 'checked' : ''}><div><b>${o[0]}</b></div><span class="pr">${eur(o[1])}</span></label>`).join('')}
+        ${p.qty ? `<div style="display:flex;align-items:center;gap:14px;margin-top:6px"><span style="color:var(--ink2)">Quantity</span><div class="qty"><button data-act="qty" data-d="-1">−</button><span>${qty}</span><button data-act="qty" data-d="1">+</button></div></div>` : ''}
+        <div class="fld" style="margin-top:14px"><label>Notes for the operations team</label><textarea class="inp" id="onote" placeholder="e.g. Supply needed at the rear left of the stand"></textarea></div>
+        <div class="note gold" style="margin-top:14px">${icon('clock')}<div>Order by ${p.by} 2027 to avoid the late surcharge.</div></div>`,
+        `<span class="tot">Total <b>${eur(total)}</b></span><button class="btn btn-out" data-act="close">Cancel</button><button class="btn btn-gold" data-act="save">${icon('check')}Pay & submit</button>`,
+        () => { ORDERS.unshift({id: 'NPC-' + (30600 + ORDERS.length * 17), product: p.name, detail: p.opts[opt][0], qty, value: total, date: NPC.today(), iso: new Date().toISOString().slice(0, 10), status: 'Submitted'}); closeModal(); toast(`${p.name} order submitted — receipt emailed to ${ME.email}`); location.hash = '#/orders'; render(); });
+    };
+    S.redraw = draw; draw();
+  },
+  pickOpt: d => { S.sel.opt = +d.i; S.redraw(); },
+  qty: d => { S.sel.qty = Math.max(1, S.sel.qty + +d.d); S.redraw(); },
+  payBalance: () => modal('Pay stand balance', `<div class="kv"><div><small>Stand ${ME.stand} total</small><b>${eur(ME.price)}</b></div><div><small>Already paid</small><b>${eur(ME.paid)}</b></div></div>
+      <div style="margin:18px 0;padding:16px;border-radius:12px;background:#f6f8f5;display:flex;align-items:center"><span>Amount due now</span><b style="margin-left:auto;font-size:22px">${eur(ME.price - ME.paid)}</b></div>
+      <div class="note blue">${icon('lock')}<div>In the live portal this opens secure card checkout. This prototype simulates a successful payment.</div></div>`,
+    `<button class="btn btn-out" data-act="close">Cancel</button><button class="btn btn-gold" data-act="save">${icon('euro')}Pay ${eur(ME.price - ME.paid)}</button>`,
+    () => { ME.paid = ME.price; closeModal(); toast('Payment received — your stand is paid in full'); render(); }),
+  addStaff: () => modal('Add staff member', `<div class="fgrid"><div class="fld span2"><label>Full name</label><input class="inp" id="stName" placeholder="e.g. Orla Kelly"></div><div class="fld"><label>Email</label><input class="inp" id="stEmail" placeholder="name@company.ie"></div><div class="fld"><label>Role</label><select class="inp" id="stRole"><option>Sales</option><option>Demonstrator</option><option>Technician</option><option>Stand manager</option></select></div></div>`,
+    `<button class="btn btn-out" data-act="close">Cancel</button><button class="btn btn-gold" data-act="save">${icon('check')}Request pass</button>`,
+    () => { const n = stName.value.trim(); if (!n) { toast('Please enter a name'); return; } STAFF.push({name: n, email: stEmail.value.trim() || '—', role: stRole.value, status: 'Pending'}); closeModal(); toast(`Pass requested for ${n} — the NPA will approve it`); render(); }),
+  delStaff: d => { const p = STAFF.splice(+d.i, 1)[0]; toast(`Pass for ${p.name} cancelled`); render(); },
+  showQR: d => modal(esc(d.n), `${qrSvg(d.n + ME.stand)}<p style="text-align:center;margin:14px 0 0"><b>NPC 2027 · Stand ${ME.stand}</b><br><span style="color:var(--muted)">Show this at the exhibitor gate</span></p>`, `<button class="btn btn-out" data-act="close">Close</button>`),
+  setupSlot: () => { S.setup = true; toast('Set-up slot requested — the NPA will confirm a time'); render(); },
+  star: d => { S.fb[d.k] = +d.n; render(); },
+  sendFb: () => { if (!S.fb.overall) { toast('Please rate your overall experience'); return; } S.feedbackSent = true; render(); },
+  fbAgain: () => { S.feedbackSent = false; S.fb = {overall: 0, org: 0, site: 0}; render(); },
+  saveProfile: () => { ME.company = pCompany.value; ME.web = pWeb.value; ME.phone = pPhone.value; ME.desc = pDesc.value; toast('Profile saved — live in the app directory'); render(); },
+};
+document.addEventListener('click', ev => {
+  const go = ev.target.closest('[data-go]'); if (go) { location.hash = '#/' + go.dataset.go; return; }
+  const a = ev.target.closest('[data-act]'); if (a && A[a.dataset.act] && !a.disabled) { if (a.tagName !== 'LABEL') ev.preventDefault(); A[a.dataset.act](a.dataset, a); return; }
+  if (ev.target.id === 'ov') closeModal();
+});
+document.addEventListener('change', ev => {
+  const id = ev.target.dataset.upload; if (!id || !ev.target.files.length) return;
+  const d = DOCS.find(x => x.id === id), f = ev.target.files[0];
+  d.file = f.name; d.status = 'In review'; d.up = NPC.today(); d.note = '';
+  toast(`${d.name} uploaded — the NPA will review it shortly`); render();
+});
+document.addEventListener('keydown', ev => { if (ev.key === 'Escape') closeModal(); });
+NPC.onChange((before, after) => {
+  DOCS.forEach(d => { const a = before.docs[d.id].status, b = after.docs[d.id].status; if (a !== b && (b === 'Approved' || b === 'Rejected')) toast(`The NPA ${b.toLowerCase()} your ${d.name}`); });
+  after.staff.forEach((p, i) => { if (before.staff[i] && before.staff[i].status !== p.status) toast(`Pass for ${p.name}: ${p.status}`); });
+  after.orders.forEach(o => { const was = before.orders.find(x => x.id === o.id); if (was && was.status !== o.status) toast(`Order ${o.id} is now ${o.status}`); });
+  if (after.messages.length > before.messages.length) toast(`New message from the NPA: ${after.messages[0].t}`);
+  syncFromStore(); if (!ov.classList.contains('show')) render();
+});
+syncFromStore();
+render();
+</script>
+</body>
+</html>
